@@ -38,13 +38,20 @@ public class FirstTest {
 
   @Test
   public void FirstTest() {
-    WebElement element_to_init_search = driver.findElement(By.xpath("//*[contains(@text,'Search Wikipedia')]"));
-    element_to_init_search.click();
-    WebElement element_to_enter_search_line = waitElementByXPath(
+    waitForElementByXpathAndClick(
+            "//*[contains(@text,'Search Wikipedia')]",
+            "Cannot find Search Wikipedia input",
+            5);
+    waitForElementByXpathAndSendKeys(
             "//*[contains(@text,'Search…')]",
-            "Cannot find search input");
-    element_to_enter_search_line.sendKeys("Appium");
-    System.out.println("First test runs");
+            "Java",
+            "Cannot find search input",
+            5);
+
+    waitElementByXPath(
+            "//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']",
+            "Cannot find 'Object-oriented programming language' text in topuc searching by 'Java'",
+            15);
   }
 
   private WebElement waitElementByXPath(String xpath, String error_message, long timeInSeconds) {
@@ -56,6 +63,19 @@ public class FirstTest {
 
   private WebElement waitElementByXPath(String xpath, String error_message) {
     return waitElementByXPath(xpath, error_message, 5);
+  }
+
+  private WebElement waitForElementByXpathAndClick(String xpath, String error_message, long timeoutInSeconds) {
+    //wait for present of element and after click on it
+    WebElement element = waitElementByXPath(xpath, error_message, timeoutInSeconds);
+    element.click();
+    return element;
+  }
+
+  private WebElement waitForElementByXpathAndSendKeys(String xpath, String value, String error_message, long timeoutInSeconds) {
+    WebElement element = waitElementByXPath(xpath, error_message, timeoutInSeconds);
+    element.sendKeys(value);
+    return element;
   }
 }
 
