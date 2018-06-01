@@ -87,6 +87,7 @@ public class FirstTest {
     );
   }
 
+  @Ignore
   @Test
   public void testCompareArticleTitle() {
     waitForElementAndClick(
@@ -113,8 +114,27 @@ public class FirstTest {
             article_title);
   }
 
+  @Test
+  //проверяет наличие текста “Search…” в строке поиска перед вводом текста и помечает тест упавшим, если такого текста нет.
+  public void testAssertTextInSearchField() {
 
-  private boolean waitForElementNotPresent(By by, String error_message, long timeInSeconds){
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find Search Wikipedia input",
+            5);
+    WebElement input_element = waitElementPresent(
+            By.id("org.wikipedia:id/search_src_text"),
+            "Cannot find search field",
+            5);
+    String text_input = input_element.getAttribute("text");
+    //Assert.assertTrue(!text_input.isEmpty());
+    Assert.assertFalse(text_input.isEmpty());
+    assertEquals("We see unexpected search field text",
+            "Search…",
+            text_input);
+  }
+
+  private boolean waitForElementNotPresent(By by, String error_message, long timeInSeconds) {
     WebDriverWait wait = new WebDriverWait(driver, timeInSeconds);
     wait.withMessage(error_message + "\n");
     return wait.until(invisibilityOfElementLocated(by));
