@@ -6,9 +6,12 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated;
+import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfAllElementsLocatedBy;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 
 /**
@@ -114,6 +117,7 @@ public class FirstTest {
             article_title);
   }
 
+  @Ignore
   @Test
   //проверяет наличие текста “Search…” в строке поиска перед вводом текста и помечает тест упавшим, если такого текста нет.
   public void testAssertTextInSearchField() {
@@ -133,6 +137,47 @@ public class FirstTest {
             text_input);
   }
 
+  @Test
+   /*
+   Тест, который:
+      Ищет какое-то слово
+      Убеждается, что найдено несколько статей
+      Отменяет поиск
+      Убеждается, что результат поиска пропал
+  */
+  public void testSearchResults(){
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find Search Wikipedia input",
+            5);
+    waitForElementAndSendKeys(
+            By.xpath("//*[contains(@text,'Search…')]"),
+            "Grand Cayman",
+            "Cannot find search input",
+            5);
+
+    //org.wikipedia:id/page_list_item_container
+    List<WebElement> search_results = waitListOfAllElementsPresent(
+            By.id("org.wikipedia:id/page_list_item_container"),
+                    "Cannot find any results",
+            5);
+    assertTrue(search_results.size()>0);
+
+    waitForElementAndClick(
+            By.id("org.wikipedia:id/search_close_btn"),
+            "Cannot find 'X to cancel search",
+            5
+    );
+
+    Boolean results_canceled = waitForElementNotPresent(
+            By.id("org.wikipedia:id/page_list_item_container"),
+            "Can find searching results",
+            5);
+
+    assertTrue(results_canceled);
+  }
+
+
   private boolean waitForElementNotPresent(By by, String error_message, long timeInSeconds) {
     WebDriverWait wait = new WebDriverWait(driver, timeInSeconds);
     wait.withMessage(error_message + "\n");
@@ -143,6 +188,11 @@ public class FirstTest {
     WebDriverWait wait = new WebDriverWait(driver, timeInSeconds);
     wait.withMessage(error_message + "\n");
     return wait.until(presenceOfElementLocated(by));
+  }
+  private List<WebElement> waitListOfAllElementsPresent(By by, String error_message, long timeInSeconds) {
+    WebDriverWait wait = new WebDriverWait(driver, timeInSeconds);
+    wait.withMessage(error_message + "\n");
+    return wait.until(presenceOfAllElementsLocatedBy(by));
   }
 
   private WebElement waitElementPresent(By by, String error_message) {
