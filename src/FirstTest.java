@@ -127,7 +127,6 @@ public class FirstTest {
             "Cannot find search field",
             5);
     String text_input = input_element.getAttribute("text");
-    //Assert.assertTrue(!text_input.isEmpty());
     Assert.assertFalse(text_input.isEmpty());
     assertEquals("We see unexpected search field text",
             "Search…",
