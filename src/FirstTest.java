@@ -64,6 +64,18 @@ public class FirstTest {
             By.id("org.wikipedia:id/search_container"),
             "Cannot find 'Search Wikipedia' input",
             5);
+
+    waitForElementAndSendKeys(
+            By.xpath("/*//*[contains(@text,'Search…')]"),
+            "Java",
+            "Cannot find search input",
+            5);
+    waitForElementAndClear(
+            By.id("org.wikipedia:id/search_src_text"),
+            "Cannot find search field",
+            5
+    );
+
     waitForElementAndClick(
             By.id("org.wikipedia:id/search_close_btn"),
             "Cannot find 'X to cancel search",
@@ -101,6 +113,12 @@ public class FirstTest {
   private WebElement waitForElementAndSendKeys(By by, String value, String error_message, long timeoutInSeconds) {
     WebElement element = waitElementPresent(by, error_message, timeoutInSeconds);
     element.sendKeys(value);
+    return element;
+  }
+
+  private WebElement waitForElementAndClear(By by, String error_message, long timeInSeconds) {
+    WebElement element = waitElementPresent(by, error_message, 5);
+    element.clear();
     return element;
   }
 }
