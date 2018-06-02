@@ -135,6 +135,7 @@ public class FirstTest {
             text_input);
   }
 
+  @Ignore
   @Test
    /*
    Тест, который:
@@ -176,6 +177,39 @@ public class FirstTest {
             "Can find searching results"));
   }
 
+
+  @Test
+  public void testSearchResultsHaveKeyword() {
+    String keyword = "Grand Cayman";
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find Search Wikipedia input");
+
+    waitForElementAndSendKeys(
+            By.xpath("//*[contains(@text,'Search…')]"),
+            keyword,
+            "Cannot find search input");
+
+    List<WebElement> search_results = waitListOfAllElementsPresent(
+            By.id("org.wikipedia:id/page_list_item_container"),
+            "Cannot find any results");
+    search_results.forEach(e -> assertTrue(isSearchResultsHaveKeyword(e, keyword)));
+  }
+
+  private boolean isSearchResultsHaveKeyword(WebElement page_list_item, String keyword) {
+    Boolean haveKeyword = true;
+    Boolean result = true;
+    List<WebElement> webElements = page_list_item.findElements(By.className("android.widget.TextView"));
+/*    webElements.forEach(e -> {
+      System.out.println(e.getAttribute("text"));
+      System.out.println(e.getAttribute("text").contains(keyword));
+    });
+    System.out.println(webElements.stream().filter(e -> haveKeyword.equals(e.getAttribute("text").contains(keyword))).count());*/
+    if (webElements.stream().filter(e -> haveKeyword.equals(e.getAttribute("text").contains(keyword))).count() == 0) {
+      result = false;
+    }
+    return result;
+  }
 
   private boolean waitForElementNotPresent(By by, String error_message, long timeInSeconds) {
     WebDriverWait wait = new WebDriverWait(driver, timeInSeconds);
