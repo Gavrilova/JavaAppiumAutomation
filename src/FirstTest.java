@@ -143,7 +143,6 @@ public class FirstTest {
       Отменяет поиск
       Убеждается, что результат поиска пропал
   */
-
   public void testSearchResults() {
 
     waitForElementAndClick(
@@ -194,6 +193,10 @@ public class FirstTest {
     return wait.until(presenceOfElementLocated(by));
   }
 
+  private WebElement waitForElementPresent(By by, String error_message) {
+    return waitForElementPresent(by, error_message, 5);
+  }
+
   private List<WebElement> waitListOfAllElementsPresent(By by, String error_message, long timeInSeconds) {
     WebDriverWait wait = new WebDriverWait(driver, timeInSeconds);
     wait.withMessage(error_message + "\n");
@@ -202,10 +205,6 @@ public class FirstTest {
 
   private List<WebElement> waitListOfAllElementsPresent(By by, String error_message) {
     return waitListOfAllElementsPresent(by, error_message, 5);
-  }
-
-  private WebElement waitForElementPresent(By by, String error_message) {
-    return waitForElementPresent(by, error_message, 5);
   }
 
   private WebElement waitForElementAndClick(By by, String error_message, long timeoutInSeconds) {
