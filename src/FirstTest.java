@@ -165,7 +165,7 @@ public class FirstTest {
             By.id("org.wikipedia:id/search_close_btn"),
             "Cannot find 'X to cancel search");
 
-    //assert that after clicking to 'X' remains only default search filed test: "Search…"
+    //assert that after clicking to 'X' remains only default search filed text: "Search…"
     assertEquals(
             "Text in the search field is not default",
             waitForElementPresent(By.id("org.wikipedia:id/search_src_text"), "Cannot find search field").getAttribute("text"),
@@ -179,8 +179,14 @@ public class FirstTest {
 
 
   @Test
+  /*
+  Тест: проверка слов в поиске
+      Ищет какое-то слово
+      Убеждается, что в каждом результате поиска есть это слово.
+   */
   public void testSearchResultsHaveKeyword() {
-    String keyword = "Grand Cayman";
+    //String keyword = "Grand Cayman";
+    String keyword = "Zello";
     waitForElementAndClick(
             By.xpath("//*[contains(@text,'Search Wikipedia')]"),
             "Cannot find Search Wikipedia input");
@@ -199,16 +205,22 @@ public class FirstTest {
   private boolean isSearchResultsHaveKeyword(WebElement page_list_item, String keyword) {
     Boolean haveKeyword = true;
     Boolean result = true;
-    List<WebElement> webElements = page_list_item.findElements(By.className("android.widget.TextView"));
-/*    webElements.forEach(e -> {
-      System.out.println(e.getAttribute("text"));
-      System.out.println(e.getAttribute("text").contains(keyword));
-    });
-    System.out.println(webElements.stream().filter(e -> haveKeyword.equals(e.getAttribute("text").contains(keyword))).count());*/
-    if (webElements.stream().filter(e -> haveKeyword.equals(e.getAttribute("text").contains(keyword))).count() == 0) {
+    //each page_list_item has several textView fields with class "android.widget.TextView";
+    List<WebElement> textView_fields = page_list_item.findElements(By.className("android.widget.TextView"));
+    //we counting how many times keyword includes in each textView_fields in each search result page_list_item;
+    if (textView_fields.stream().filter(e -> haveKeyword.equals(e.getAttribute("text").contains(keyword))).count() == 0) {
       result = false;
+      System.out.println("\"" + keyword + "\""+ " didn't found in the search result:");
+      textView_fields.stream()
+              .forEach(e->System.out.println(e.getAttribute("text")));
     }
     return result;
+  }
+
+  private void printPageListItem(WebElement page_list_item) {
+    List<WebElement> textView_fields = page_list_item.findElements(By.className("android.widget.TextView"));
+    textView_fields.stream()
+            .forEach(e->System.out.println(e.getAttribute("text")));
   }
 
   private boolean waitForElementNotPresent(By by, String error_message, long timeInSeconds) {
