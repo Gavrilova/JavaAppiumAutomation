@@ -1,6 +1,8 @@
+import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import org.junit.*;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -115,6 +117,31 @@ public class FirstTest {
             article_title);
   }
 
+  @Test
+  public void testSwipeArticle() {
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find Search Wikipedia input",
+            5);
+    waitForElementAndSendKeys(
+            By.xpath("//*[contains(@text,'Search…')]"),
+            "Appium",
+            "Cannot find search input",
+            5);
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
+            "Cannot find 'Appium' article in search results",
+            5);
+    waitForElementPresent(
+            By.id("org.wikipedia:id/view_page_title_text"),
+            "Cannot find title for article",
+            15);
+    swipeUpToElement(
+            By.xpath("//*[@text = 'View page in browser']"),
+                    "Cannot find the end of the article",
+            20);
+  }
+
   @Ignore
   @Test
   //проверяет наличие текста “Search…” в строке поиска перед вводом текста и помечает тест упавшим, если такого текста нет.
@@ -177,7 +204,7 @@ public class FirstTest {
             "Can find searching results"));
   }
 
-
+  @Ignore
   @Test
   /*
   Тест: проверка слов в поиске
@@ -208,9 +235,9 @@ public class FirstTest {
     //we counting how many times keyword includes in each textView_fields in each search result page_list_item;
     if (textView_fields.stream().filter(e -> e.getAttribute("text").contains(keyword)).count() == 0) {
       result = false;
-      System.out.println("\"" + keyword + "\""+ " didn't found in the search result:");
+      System.out.println("\"" + keyword + "\"" + " didn't found in the search result:");
       textView_fields.stream()
-              .forEach(e->System.out.println(e.getAttribute("text")));
+              .forEach(e -> System.out.println(e.getAttribute("text")));
     }
     return result;
   }
@@ -218,7 +245,7 @@ public class FirstTest {
   private void printPageListItem(WebElement page_list_item) {
     List<WebElement> textView_fields = page_list_item.findElements(By.className("android.widget.TextView"));
     textView_fields.stream()
-            .forEach(e->System.out.println(e.getAttribute("text")));
+            .forEach(e -> System.out.println(e.getAttribute("text")));
   }
 
   private boolean waitForElementNotPresent(By by, String error_message, long timeInSeconds) {
@@ -279,6 +306,32 @@ public class FirstTest {
 
   private WebElement waitForElementAndClear(By by, String error_message) {
     return waitForElementAndClear(by, error_message, 5);
+  }
+
+  protected void swipeUp(int timeOfSwipe){
+    TouchAction action = new TouchAction(driver);
+    Dimension size = driver.manage().window().getSize();
+    int x = size.width/2;
+    int start_y = (int)(size.height*0.8);
+    int end_y = (int)(size.height*0.2);
+    action.press(x, start_y).waitAction(timeOfSwipe).moveTo(x, end_y).release().perform();
+  }
+
+  protected void swipeUpQuick(){
+     swipeUp(200);
+  }
+
+  protected void swipeUpToElement(By by, String error_message, int maxSwipes){
+    int already_swiped=0;
+    while (driver.findElements(by).size()==0) {
+      if (already_swiped > maxSwipes) {
+        waitForElementPresent(by, "Cannot find element by swiping Up. \n " + error_message);
+        return;
+      }
+      swipeUpQuick();
+      ++ already_swiped;
+    }
+
   }
 }
 
