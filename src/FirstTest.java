@@ -185,8 +185,7 @@ public class FirstTest {
       Убеждается, что в каждом результате поиска есть это слово.
    */
   public void testSearchResultsHaveKeyword() {
-    //String keyword = "Grand Cayman";
-    String keyword = "Zello";
+    String keyword = "Grand Cayman";
     waitForElementAndClick(
             By.xpath("//*[contains(@text,'Search Wikipedia')]"),
             "Cannot find Search Wikipedia input");
@@ -203,12 +202,11 @@ public class FirstTest {
   }
 
   private boolean isSearchResultsHaveKeyword(WebElement page_list_item, String keyword) {
-    Boolean haveKeyword = true;
     Boolean result = true;
     //each page_list_item has several textView fields with class "android.widget.TextView";
     List<WebElement> textView_fields = page_list_item.findElements(By.className("android.widget.TextView"));
     //we counting how many times keyword includes in each textView_fields in each search result page_list_item;
-    if (textView_fields.stream().filter(e -> haveKeyword.equals(e.getAttribute("text").contains(keyword))).count() == 0) {
+    if (textView_fields.stream().filter(e -> e.getAttribute("text").contains(keyword)).count() == 0) {
       result = false;
       System.out.println("\"" + keyword + "\""+ " didn't found in the search result:");
       textView_fields.stream()
