@@ -117,6 +117,7 @@ public class FirstTest {
             article_title);
   }
 
+  @Ignore
   @Test
   public void testSwipeArticle() {
     waitForElementAndClick(
@@ -138,8 +139,33 @@ public class FirstTest {
             15);
     swipeUpToElement(
             By.xpath("//*[@text = 'View page in browser']"),
-                    "Cannot find the end of the article",
+            "Cannot find the end of the article",
             20);
+  }
+
+  @Ignore
+  @Test
+  public void testSaveArticleToMyList() {
+    //goTo choosen article;
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find Search Wikipedia input",
+            5);
+    waitForElementAndSendKeys(
+            By.xpath("//*[contains(@text,'Search…')]"),
+            "Java",
+            "Cannot find search input",
+            5);
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+            "Cannot click to the article 'Object-oriented programming language'",
+            5);
+    waitForElementPresent(
+            By.id("org.wikipedia:id/view_page_title_text"),
+            "Cannot find title for article",
+            15);
+
+
   }
 
   @Ignore
@@ -204,15 +230,31 @@ public class FirstTest {
             "Can find searching results"));
   }
 
-  @Ignore
   @Test
+  public void testSearchResultsHaveKeyword1() {
+    //All searching results will contain searching keyword: "Grand Cayman":
+    testSearchResultsHaveKeyword("Grand Cayman");
+  }
+
+  @Test
+  public void testSearchResultsHaveKeyword2() {
+    //At least one search result which doesn't include search keyword: "Zello":
+    testSearchResultsHaveKeyword("Zello");
+  }
+
+  @Test
+  public void testSearchResultsHaveKeyword3() {
+    //There is no any searching results with (nonsence) keyword: "ицщ !":
+    testSearchResultsHaveKeyword("ицщ !");
+  }
+
+
   /*
   Тест: проверка слов в поиске
       Ищет какое-то слово
       Убеждается, что в каждом результате поиска есть это слово.
    */
-  public void testSearchResultsHaveKeyword() {
-    String keyword = "Grand Cayman";
+  public void testSearchResultsHaveKeyword(String keyword) {
     waitForElementAndClick(
             By.xpath("//*[contains(@text,'Search Wikipedia')]"),
             "Cannot find Search Wikipedia input");
@@ -240,12 +282,6 @@ public class FirstTest {
               .forEach(e -> System.out.println(e.getAttribute("text")));
     }
     return result;
-  }
-
-  private void printPageListItem(WebElement page_list_item) {
-    List<WebElement> textView_fields = page_list_item.findElements(By.className("android.widget.TextView"));
-    textView_fields.stream()
-            .forEach(e -> System.out.println(e.getAttribute("text")));
   }
 
   private boolean waitForElementNotPresent(By by, String error_message, long timeInSeconds) {
@@ -308,28 +344,28 @@ public class FirstTest {
     return waitForElementAndClear(by, error_message, 5);
   }
 
-  protected void swipeUp(int timeOfSwipe){
+  protected void swipeUp(int timeOfSwipe) {
     TouchAction action = new TouchAction(driver);
     Dimension size = driver.manage().window().getSize();
-    int x = size.width/2;
-    int start_y = (int)(size.height*0.8);
-    int end_y = (int)(size.height*0.2);
+    int x = size.width / 2;
+    int start_y = (int) (size.height * 0.8);
+    int end_y = (int) (size.height * 0.2);
     action.press(x, start_y).waitAction(timeOfSwipe).moveTo(x, end_y).release().perform();
   }
 
-  protected void swipeUpQuick(){
-     swipeUp(200);
+  protected void swipeUpQuick() {
+    swipeUp(200);
   }
 
-  protected void swipeUpToElement(By by, String error_message, int maxSwipes){
-    int already_swiped=0;
-    while (driver.findElements(by).size()==0) {
+  protected void swipeUpToElement(By by, String error_message, int maxSwipes) {
+    int already_swiped = 0;
+    while (driver.findElements(by).size() == 0) {
       if (already_swiped > maxSwipes) {
         waitForElementPresent(by, "Cannot find element by swiping Up. \n " + error_message);
         return;
       }
       swipeUpQuick();
-      ++ already_swiped;
+      ++already_swiped;
     }
 
   }
