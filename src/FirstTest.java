@@ -244,8 +244,8 @@ public class FirstTest {
 
   @Test
   public void testSearchResultsHaveKeyword3() {
-    //There is no any searching results with (nonsence) keyword: "ицщ !":
-    testSearchResultsHaveKeyword("ицщ !");
+    //There is no any searching results with (nonsence) keyword: "m56743":
+    testSearchResultsHaveKeyword("m56743");
   }
 
 
@@ -254,7 +254,7 @@ public class FirstTest {
       Ищет какое-то слово
       Убеждается, что в каждом результате поиска есть это слово.
    */
-  public void testSearchResultsHaveKeyword(String keyword) {
+  private void testSearchResultsHaveKeyword(String keyword) {
     waitForElementAndClick(
             By.xpath("//*[contains(@text,'Search Wikipedia')]"),
             "Cannot find Search Wikipedia input");
@@ -267,7 +267,9 @@ public class FirstTest {
     List<WebElement> search_results = waitListOfAllElementsPresent(
             By.id("org.wikipedia:id/page_list_item_container"),
             "Cannot find any search results");
-    search_results.forEach(e -> assertTrue(isSearchResultsHaveKeyword(e, keyword)));
+    for (WebElement search_result : search_results) {
+      assertTrue(isSearchResultsHaveKeyword(search_result, keyword));
+    }
   }
 
   private boolean isSearchResultsHaveKeyword(WebElement page_list_item, String keyword) {
@@ -279,18 +281,23 @@ public class FirstTest {
             "Cannot find title and/or description and/or redirect info of the article");
 
     List<WebElement> textView_fields = page_list_item.findElements(By.className("android.widget.TextView"));
-    String error_message = "\"" + keyword + "\"" + " didn't found in the article: ";
 
     //we counting how many times keyword includes in each textView_fields in each search result page_list_item;
     if (textView_fields.stream().filter(e -> e.getAttribute("text").contains(keyword)).count() == 0) {
       result = false;
-      for (int i = 0; i < textView_fields.size(); i++) {
-        waitAttributeContains(textView_fields.get(i),
-                keyword,
-                error_message);
-      }
+      waitAttributeContains(textView_fields.get(0),
+              keyword,
+              "\"" + keyword + "\"" + " didn't found in the article: " + getArticleText(textView_fields));
     }
     return result;
+  }
+
+  private String getArticleText(List<WebElement> list) {
+    String textOfArticle = "";
+    for (WebElement aList : list) {
+      textOfArticle = textOfArticle + "\n" + aList.getAttribute("text");
+    }
+    return textOfArticle;
   }
 
   private boolean waitForElementNotPresent(By by, String error_message, long timeInSeconds) {
@@ -325,7 +332,7 @@ public class FirstTest {
 
   private Boolean waitAttributeContains(WebElement webElement, String attribute, String keyword, String error_message, long timeInSeconds) {
     WebDriverWait wait = new WebDriverWait(driver, timeInSeconds);
-    wait.withMessage(error_message + "\n" + webElement.getAttribute(attribute) + "\n");
+    wait.withMessage(error_message + "\n");
     return wait.until(attributeContains(webElement, attribute, keyword));
   }
 
