@@ -1,6 +1,9 @@
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebElement;
@@ -10,8 +13,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.net.URL;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 /**
@@ -41,7 +43,7 @@ public class FirstTest {
 
   @Ignore
   @Test
-  public void FirstTest() {
+  public void testSearch() {
     waitForElementAndClick(
             By.xpath("//*[contains(@text,'Search Wikipedia')]"),
             "Cannot find Search Wikipedia input",
@@ -186,11 +188,11 @@ public class FirstTest {
             By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"),
             "Cannot find navigation button 'My lists' to open 'My lists' folder");
     waitForElementAndClick(
-            By.xpath("//*[@text='"+name_of_folder+"']"),
-            "Cannot find created '"+name_of_folder+"' folder in 'My lists'");
+            By.xpath("//*[@text='" + name_of_folder + "']"),
+            "Cannot find created '" + name_of_folder + "' folder in 'My lists'");
     waitForElementPresent(
             By.xpath("//*[@text='Java (programming language)']"),
-            "Cannot find article 'Java (programming language)' in '"+name_of_folder+"' folder");
+            "Cannot find article 'Java (programming language)' in '" + name_of_folder + "' folder");
     swipeElementToLeft(
             By.xpath("//*[@text='Java (programming language)']"),
             "Cannot find article saved  article 'Java (programming language)'");
@@ -199,7 +201,7 @@ public class FirstTest {
             "Cannot delete saved article 'Java (programming language)'");
   }
 
-  @Ignore
+  //@Ignore
   @Test
   //проверяет наличие текста “Search…” в строке поиска перед вводом текста и помечает тест упавшим, если такого текста нет.
   public void testAssertTextInSearchField() {
@@ -213,8 +215,11 @@ public class FirstTest {
             "Cannot find search field",
             5);
     String text_input = input_element.getAttribute("text");
-    Assert.assertFalse(text_input.isEmpty());
-    assertEquals("We see unexpected search field text",
+    assertFalse(
+            "Search text field is empty",
+            text_input.isEmpty());
+    assertEquals(
+            "We see unexpected search field text",
             "Search…",
             text_input);
   }
