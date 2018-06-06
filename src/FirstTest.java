@@ -268,18 +268,20 @@ public class FirstTest {
             By.id("org.wikipedia:id/page_list_item_container"),
             "Cannot find any search results");
     for (WebElement search_result : search_results) {
-      assertTrue(isSearchResultsHaveKeyword(search_result, keyword));
+      assertTrue(isSearchResultsHaveKeyword(
+              search_result,
+              keyword,
+              "Cannot find searching keyword(s) '" + keyword + "' in the article"));
     }
   }
 
-  private boolean isSearchResultsHaveKeyword(WebElement page_list_item, String keyword) {
+  private boolean isSearchResultsHaveKeyword(WebElement page_list_item, String keyword, String error_message) {
     Boolean result = true;
     //each page_list_item has several textView fields with class "android.widget.TextView";
     //but at first we should confirm the presents of all webElements with locator By.className("android.widget.TextView") on the screen;
     waitListOfAllElementsPresent(
             By.className("android.widget.TextView"),
             "Cannot find title and/or description and/or redirect info of the article");
-
     List<WebElement> textView_fields = page_list_item.findElements(By.className("android.widget.TextView"));
 
     //we counting how many times keyword includes in each textView_fields in each search result page_list_item;
@@ -287,7 +289,7 @@ public class FirstTest {
       result = false;
       waitAttributeContains(textView_fields.get(0),
               keyword,
-              "\"" + keyword + "\"" + " didn't found in the article: " + getArticleText(textView_fields));
+              error_message + getArticleText(textView_fields));
     }
     return result;
   }
