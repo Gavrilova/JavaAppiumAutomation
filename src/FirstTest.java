@@ -266,20 +266,29 @@ public class FirstTest {
 
     List<WebElement> search_results = waitListOfAllElementsPresent(
             By.id("org.wikipedia:id/page_list_item_container"),
-            "Cannot find any results");
+            "Cannot find any search results");
     search_results.forEach(e -> assertTrue(isSearchResultsHaveKeyword(e, keyword)));
   }
 
   private boolean isSearchResultsHaveKeyword(WebElement page_list_item, String keyword) {
     Boolean result = true;
     //each page_list_item has several textView fields with class "android.widget.TextView";
+    //but at first we should confirm the presents of all webElements with locator By.className("android.widget.TextView") on the screen;
+    waitListOfAllElementsPresent(
+            By.className("android.widget.TextView"),
+            "Cannot find title and/or description and/or redirect info of the article");
+
     List<WebElement> textView_fields = page_list_item.findElements(By.className("android.widget.TextView"));
+    String error_message = "\"" + keyword + "\"" + " didn't found in the article: ";
+
     //we counting how many times keyword includes in each textView_fields in each search result page_list_item;
     if (textView_fields.stream().filter(e -> e.getAttribute("text").contains(keyword)).count() == 0) {
       result = false;
-      System.out.println("\"" + keyword + "\"" + " didn't found in the search result:");
-      textView_fields.stream()
-              .forEach(e -> System.out.println(e.getAttribute("text")));
+      for (int i = 0; i < textView_fields.size(); i++) {
+        waitAttributeContains(textView_fields.get(i),
+                keyword,
+                error_message);
+      }
     }
     return result;
   }
@@ -312,6 +321,16 @@ public class FirstTest {
 
   private List<WebElement> waitListOfAllElementsPresent(By by, String error_message) {
     return waitListOfAllElementsPresent(by, error_message, 5);
+  }
+
+  private Boolean waitAttributeContains(WebElement webElement, String attribute, String keyword, String error_message, long timeInSeconds) {
+    WebDriverWait wait = new WebDriverWait(driver, timeInSeconds);
+    wait.withMessage(error_message + "\n" + webElement.getAttribute(attribute) + "\n");
+    return wait.until(attributeContains(webElement, attribute, keyword));
+  }
+
+  private Boolean waitAttributeContains(WebElement webElement, String keyword, String error_message) {
+    return waitAttributeContains(webElement, "text", keyword, error_message, 5);
   }
 
   private WebElement waitForElementAndClick(By by, String error_message, long timeoutInSeconds) {
