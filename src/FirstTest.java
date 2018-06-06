@@ -188,7 +188,7 @@ public class FirstTest {
             text_input);
   }
 
-  @Ignore
+
   @Test
    /*
    Тест, который:
@@ -198,21 +198,25 @@ public class FirstTest {
       Убеждается, что результат поиска пропал
   */
   public void testSearchResults() {
-
+    String keyword = "Grand Cayman";
     waitForElementAndClick(
             By.xpath("//*[contains(@text,'Search Wikipedia')]"),
             "Cannot find Search Wikipedia input");
 
     waitForElementAndSendKeys(
             By.xpath("//*[contains(@text,'Search…')]"),
-            "Grand Cayman",
+            keyword,
             "Cannot find search input");
+    //assert that we didn't get error of wiki app during the search;
+    waitForElementNotPresent(
+            By.id("org.wikipedia:id/view_wiki_error_text"),
+            "Cannot implement the search '" + keyword + "'. An error of wiki app occured.");
 
     List<WebElement> search_results = waitListOfAllElementsPresent(
             By.id("org.wikipedia:id/page_list_item_container"),
             "Cannot find any results");
 
-    assertTrue(search_results.size() > 0);
+    assertTrue("No results were found for searching keyword(s): \n" + keyword, (search_results.size() > 0));
 
     waitForElementAndClick(
             By.id("org.wikipedia:id/search_close_btn"),
@@ -230,18 +234,21 @@ public class FirstTest {
             "Can find searching results"));
   }
 
+  @Ignore
   @Test
   public void testSearchResultsHaveKeyword1() {
     //All searching results will contain searching keyword: "Grand Cayman":
     testSearchResultsHaveKeyword("Grand Cayman");
   }
 
+  @Ignore
   @Test
   public void testSearchResultsHaveKeyword2() {
     //At least one search result which doesn't include search keyword: "Zello":
     testSearchResultsHaveKeyword("Zello");
   }
 
+  @Ignore
   @Test
   public void testSearchResultsHaveKeyword3() {
     //There is no any searching results with (nonsence) keyword: "m56743":
