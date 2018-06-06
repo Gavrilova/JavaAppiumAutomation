@@ -214,9 +214,10 @@ public class FirstTest {
 
     List<WebElement> search_results = waitListOfAllElementsPresent(
             By.id("org.wikipedia:id/page_list_item_container"),
-            "Cannot find any results");
+            "Cannot find any searching results. List of searching results is empty.");
 
-    assertTrue("No results were found for searching keyword(s): \n" + keyword, (search_results.size() > 0));
+    assertTrue("No results were found for searching keyword(s): '" + keyword + "'. \n At least one result was expected.",
+            (search_results.size() > 0));
 
     waitForElementAndClick(
             By.id("org.wikipedia:id/search_close_btn"),
