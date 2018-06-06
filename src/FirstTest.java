@@ -1,9 +1,6 @@
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebElement;
@@ -201,7 +198,30 @@ public class FirstTest {
             "Cannot delete saved article 'Java (programming language)'");
   }
 
-  //@Ignore
+  @Test
+  public void testAmountOfNotEmptySearch() {
+    String search_keyword = "Linkin Park discography";
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find Search Wikipedia input");
+    waitForElementAndSendKeys(
+            By.xpath("//*[contains(@text,'Search…')]"),
+            search_keyword,
+            "Cannot find search input");
+    String search_result_locator =
+            "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']";
+    waitForElementPresent(
+            By.xpath(search_result_locator),
+            "Cannot find anything by request '" + search_keyword + "'",
+            15);
+    int amount_of_searching_results = getAmountOfElements(By.xpath(search_result_locator));
+    assertTrue(
+            "We found too few results!",
+            amount_of_searching_results >0);
+  }
+
+
+  @Ignore
   @Test
   //проверяет наличие текста “Search…” в строке поиска перед вводом текста и помечает тест упавшим, если такого текста нет.
   public void testAssertTextInSearchField() {
@@ -464,6 +484,11 @@ public class FirstTest {
             .moveTo(left_x, middle_y)
             .release()
             .perform();
+  }
+
+  private int getAmountOfElements(By by){
+    List elements = driver.findElements(by);
+   return elements.size();
   }
 }
 
