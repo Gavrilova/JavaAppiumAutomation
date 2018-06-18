@@ -1,6 +1,9 @@
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.ScreenOrientation;
@@ -10,6 +13,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
@@ -143,6 +147,7 @@ public class FirstTest {
             20);
   }
 
+  @Ignore
   @Test
   public void testSaveArticleToMyList() {
     String name_of_folder = "Learning Programming";
@@ -199,6 +204,146 @@ public class FirstTest {
             "Cannot delete saved article 'Java (programming language)'");
   }
 
+  @Test
+
+ /* 1. Сохраняет две статьи в одну папку
+    2. Удаляет одну из статей
+    3. Убеждается, что вторая осталась
+    4. Переходит в неё и убеждается, что title совпадает*/
+
+  public void testSavingTwoArticlesToOneReadingListAndDeletingOneOfThem() {
+    String name_of_myList = "Learning Programming";
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find Search Wikipedia input");
+    waitForElementAndSendKeys(
+            By.xpath("//*[contains(@text,'Search…')]"),
+            "Java",
+            "Cannot find search input");
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+            "Cannot click to the article 'Object-oriented programming language'");
+    waitForElementPresent(
+            By.id("org.wikipedia:id/view_page_title_text"),
+            "Cannot find title for article",
+            15);
+    waitForElementAndClick(
+            By.xpath("//android.widget.ImageView[@content-desc='More options']"),
+            "Cannot find 'More options' button to open article options");
+    //we wait here presents of all menus from context menu 'More options' android.widget.ListView;
+    waitListOfAllElementsPresent(
+            By.id("org.wikipedia:id/title"),
+            "Cannot find commands from context menu 'android.widget.ListView'",
+            15);
+    waitForElementAndClick(
+            By.xpath("//*[@text='Add to reading list']"),
+            "Cannot find options to add article to reading list ");
+    waitForElementAndClick(
+            By.id("org.wikipedia:id/onboarding_button"),
+            "Cannot 'GOT IT' tip overlay");
+    waitForElementAndClear(
+            By.id("org.wikipedia:id/text_input"),
+            "Cannot find input to set name of article's folder");
+    waitForElementAndSendKeys(
+            By.id("org.wikipedia:id/text_input"),
+            name_of_myList,
+            "Cannot put text into article's folder input");
+    waitForElementAndClick(
+            By.xpath("//*[@text='OK']"),
+            "Cannot press 'OK' button to save article's folder");
+    verifyThatAddedArticleToMyListMessageAppears(name_of_myList);
+
+    // close first saved article
+    waitForElementAndClick(
+            By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
+            "Cannot find 'X' button to close article",
+            15);
+    //adding second article 'Wikimedia list article'
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find Search Wikipedia input");
+    waitForElementAndSendKeys(
+            By.xpath("//*[contains(@text,'Search…')]"),
+            "Java",
+            "Cannot find search input");
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Wikimedia list article']"),
+            "Cannot click to the article 'Wikimedia list article'");
+    waitForElementPresent(
+            By.id("org.wikipedia:id/view_page_title_text"),
+            "Cannot find title for article",
+            15);
+    waitForElementAndClick(
+            By.xpath("//android.widget.ImageView[@content-desc='More options']"),
+            "Cannot find 'More options' button to open article options");
+    //we wait here presents of all menus from context menu 'More options' android.widget.ListView;
+    waitListOfAllElementsPresent(
+            By.id("org.wikipedia:id/title"),
+            "Cannot find commands from context menu 'android.widget.ListView'");
+    //adding to already created MyList
+    waitForElementAndClick(
+            By.xpath("//*[@text='Add to reading list']"),
+            "Cannot find options to add article to reading list ");
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/item_title'][@text='" + name_of_myList + "']"),
+            "Cannot find " + name_of_myList + " among the MyList folders");
+    //verifyThatAddedArticleToMyListMessageAppears(name_of_myList);
+    waitForElementAndClick(
+            By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
+            "Cannot find 'X' button to close article",
+            15);
+    //Finish adding second article
+    waitForElementAndClick(
+            By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"),
+            "Cannot find navigation button 'My lists' to open 'My lists' folder");
+    waitForElementAndClick(
+            By.xpath("//*[@text='Learning Programming']"),
+            "Cannot find created '" + name_of_myList + "' folder in 'My lists'",
+            15);
+    waitForElementPresent(
+            By.xpath("//*[@text='Java (programming language)']"),
+            "Cannot find article 'Java (programming language)' in '" + name_of_myList + "' folder");
+    swipeElementToLeft(
+            By.xpath("//*[@text='Java (programming language)']"),
+            "Cannot find article saved  article 'Java (programming language)'");
+    waitForElementNotPresent(
+            By.xpath("//*[@text='Java (programming language)']"),
+            "Cannot delete saved article 'Java (programming language)'");
+    waitForElementPresent(
+            By.xpath("//*[@text='Java version history']"),
+            "Cannot find saved article 'Java version history'");
+  }
+
+  private void verifyThatAddedArticleToMyListMessageAppears(String name_of_myList) {
+    //We verify, that article were added to the list:
+    //1) appropriate message appears;
+    //2) number of articles in the list increased to 1;
+
+    //we verify that snackbar text is present and will be about adding article to the list: "Added to "+name_of_myList + ".""
+/*
+    waitForElementPresent(
+            By.id("org.wikipedia:id/snackbar_text"),
+            "There is no snackbar text after adding second article 'name of the article' to the folder");
+*/
+
+    String message_after_adding_first_article =
+            waitForElementAndGetAttribute(
+                    By.id("org.wikipedia:id/snackbar_text"),
+                    "text",
+                    "There is no snackbar text after adding second article 'name of the article' to the folder",
+                    5);
+    assertEquals(
+            "Message after adding atricle should be 'Added to " + name_of_myList + ".'",
+            message_after_adding_first_article,
+            "Added to " + name_of_myList + ".");
+
+    waitForElementNotPresent(
+            By.id("org.wikipedia:id/snackbar_text"),
+            "Snackbar text doesn't disappear.",
+            15);
+  }
+
+
   @Ignore
   @Test
   public void testAmountOfNotEmptySearch() {
@@ -240,7 +385,7 @@ public class FirstTest {
             By.xpath(empty_result_label),
             "Cannot find empty result label by request '" + search_keyword + "'",
             15);
-    assertElementNotPresent(
+    isElementNotPresent(
             By.xpath(search_result_locator),
             "We've found some results by request '" + search_keyword + "'");
   }
@@ -270,7 +415,7 @@ public class FirstTest {
             "text",
             "Cannot find title of article",
             15);
-    Assert.assertEquals(
+    assertEquals(
             "Article's title has been changed: title after rotation doesn't equal to the title before rotation!",
             title_before_rotation,
             title_after_rotation_to_LANDSCAPE_mode);
@@ -280,14 +425,14 @@ public class FirstTest {
             "text",
             "Cannot find title of article",
             15);
-    Assert.assertEquals(
+    assertEquals(
             "Article's title has been changed: title after 2nd rotation to Portrait mode doesn't equal to the title before rotation!",
             title_before_rotation,
             title_after_second_rotation_to_PORTRAIT_mode);
   }
 
   @Test
-  public void testCheckSearchArticleInBackGround(){
+  public void testCheckSearchArticleInBackGround() {
     waitForElementAndClick(
             By.xpath("//*[contains(@text,'Search Wikipedia')]"),
             "Cannot find 'Search Wikipedia' input");
@@ -574,7 +719,7 @@ public class FirstTest {
     return elements.size();
   }
 
-  private void assertElementNotPresent(By by, String error_message) {
+  private void isElementNotPresent(By by, String error_message) {
     int amount_of_elements = getAmountOfElements(by);
     if (amount_of_elements > 0) {
       String default_message =
@@ -583,7 +728,7 @@ public class FirstTest {
     }
   }
 
-  private void assertElementPresent(By by, String error_message) {
+  private void isElementPresent(By by, String error_message) {
     int amount_of_elements = getAmountOfElements(by);
     if (amount_of_elements > 0) {
       String default_message =
@@ -595,6 +740,11 @@ public class FirstTest {
   private String waitForElementAndGetAttribute(By by, String attribute, String error_message, long timeoutInSeconds) {
     WebElement element = waitForElementPresent(by, error_message, timeoutInSeconds);
     return element.getAttribute(attribute);
+  }
+
+  private List<String> waitForElementsAndGetAttributes(By by, String attribute, String error_message, long timeoutInSeconds) {
+    List<WebElement> elements = waitListOfAllElementsPresent(by, error_message, timeoutInSeconds);
+    return elements.stream().map(e -> e.getAttribute(attribute)).collect(Collectors.toList());
   }
 }
 
