@@ -1,11 +1,9 @@
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.ScreenOrientation;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -201,6 +199,7 @@ public class FirstTest {
             "Cannot delete saved article 'Java (programming language)'");
   }
 
+  @Ignore
   @Test
   public void testAmountOfNotEmptySearch() {
     String search_keyword = "Linkin Park discography";
@@ -223,6 +222,7 @@ public class FirstTest {
             amount_of_searching_results > 0);
   }
 
+  @Ignore
   @Test
   public void testAmountOfEmptySearch() {
     String search_keyword = "m23052";
@@ -243,6 +243,47 @@ public class FirstTest {
     assertElementNotPresent(
             By.xpath(search_result_locator),
             "We've found some results by request '" + search_keyword + "'");
+  }
+
+  @Test
+  public void testChangeScreenOrientationOnSearchResults() {
+    String search_keyword = "Java";
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find Search Wikipedia input");
+    waitForElementAndSendKeys(
+            By.xpath("//*[contains(@text,'Search…')]"),
+            "Java",
+            "Cannot find search input");
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+            "Cannot click to the article 'Object-oriented programming language' tipc searching by " + search_keyword,
+            15);
+    String title_before_rotation = waitForElementAndGetAttribute(
+            By.id("org.wikipedia:id/view_page_title_text"),
+            "text",
+            "Cannot find title of article",
+            15);
+    driver.rotate(ScreenOrientation.LANDSCAPE);
+    String title_after_rotation_to_LANDSCAPE_mode = waitForElementAndGetAttribute(
+            By.id("org.wikipedia:id/view_page_title_text"),
+            "text",
+            "Cannot find title of article",
+            15);
+    Assert.assertEquals(
+            "Article's title has been changed: title after rotation doesn't equal to the title before rotation!",
+            title_before_rotation,
+            title_after_rotation_to_LANDSCAPE_mode);
+    driver.rotate(ScreenOrientation.PORTRAIT);
+    String title_after_second_rotation_to_PORTRAIT_mode = waitForElementAndGetAttribute(
+            By.id("org.wikipedia:id/view_page_title_text"),
+            "text",
+            "Cannot find title of article",
+            15);
+    Assert.assertEquals(
+            "Article's title has been changed: title after 2nd rotation to Portrait mode doesn't equal to the title before rotation!",
+            title_before_rotation,
+            title_after_second_rotation_to_PORTRAIT_mode);
   }
 
   @Ignore
@@ -522,6 +563,20 @@ public class FirstTest {
               "An element '" + by.toString() + "' supposed to be not present.";
       throw new AssertionError(default_message + " " + error_message);
     }
+  }
+
+  private void assertElementPresent(By by, String error_message) {
+    int amount_of_elements = getAmountOfElements(by);
+    if (amount_of_elements > 0) {
+      String default_message =
+              "An element '" + by.toString() + "' supposed to be present.";
+      throw new AssertionError(default_message + " " + error_message);
+    }
+  }
+
+  private String waitForElementAndGetAttribute(By by, String attribute, String error_message, long timeoutInSeconds) {
+    WebElement element = waitForElementPresent(by, error_message, timeoutInSeconds);
+    return element.getAttribute(attribute);
   }
 }
 
