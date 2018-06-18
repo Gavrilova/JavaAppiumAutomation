@@ -4,10 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.ScreenOrientation;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -251,6 +248,7 @@ public class FirstTest {
     waitForElementAndClick(
             By.xpath("//*[@text='OK']"),
             "Cannot press 'OK' button to save article's folder");
+
     verifyThatAddedArticleToMyListMessageAppears(name_of_myList);
 
     // close first saved article
@@ -281,13 +279,16 @@ public class FirstTest {
             By.id("org.wikipedia:id/title"),
             "Cannot find commands from context menu 'android.widget.ListView'");
     //adding to already created MyList
+    assertElementPresent(By.xpath("//*[@text='Add to reading list']"));
     waitForElementAndClick(
             By.xpath("//*[@text='Add to reading list']"),
             "Cannot find options to add article to reading list ");
     waitForElementAndClick(
             By.xpath("//*[@resource-id='org.wikipedia:id/item_title'][@text='" + name_of_myList + "']"),
             "Cannot find " + name_of_myList + " among the MyList folders");
-    //verifyThatAddedArticleToMyListMessageAppears(name_of_myList);
+
+    verifyThatAddedArticleToMyListMessageAppears(name_of_myList);
+
     waitForElementAndClick(
             By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
             "Cannot find 'X' button to close article",
@@ -297,7 +298,7 @@ public class FirstTest {
             By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"),
             "Cannot find navigation button 'My lists' to open 'My lists' folder");
     waitForElementAndClick(
-            By.xpath("//*[@text='Learning Programming']"),
+            By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='Learning Programming']"),
             "Cannot find created '" + name_of_myList + "' folder in 'My lists'",
             15);
     waitForElementPresent(
@@ -315,6 +316,7 @@ public class FirstTest {
   }
 
   private void verifyThatAddedArticleToMyListMessageAppears(String name_of_myList) {
+
     //We verify, that article were added to the list:
     //1) appropriate message appears;
     //2) number of articles in the list increased to 1;
@@ -325,24 +327,24 @@ public class FirstTest {
             By.id("org.wikipedia:id/snackbar_text"),
             "There is no snackbar text after adding second article 'name of the article' to the folder");
 */
+    if (assertElementPresent(By.id("org.wikipedia:id/snackbar_text"))) {
+      String message_after_adding_first_article =
+              waitForElementAndGetAttribute(
+                      By.id("org.wikipedia:id/snackbar_text"),
+                      "text",
+                      "There is no snackbar text after adding second article 'name of the article' to the folder",
+                      5);
+      assertEquals(
+              "Message after adding atricle should be 'Added to " + name_of_myList + ".'",
+              message_after_adding_first_article,
+              "Added to " + name_of_myList + ".");
 
-    String message_after_adding_first_article =
-            waitForElementAndGetAttribute(
-                    By.id("org.wikipedia:id/snackbar_text"),
-                    "text",
-                    "There is no snackbar text after adding second article 'name of the article' to the folder",
-                    5);
-    assertEquals(
-            "Message after adding atricle should be 'Added to " + name_of_myList + ".'",
-            message_after_adding_first_article,
-            "Added to " + name_of_myList + ".");
-
-    waitForElementNotPresent(
-            By.id("org.wikipedia:id/snackbar_text"),
-            "Snackbar text doesn't disappear.",
-            15);
+      waitForElementNotPresent(
+              By.id("org.wikipedia:id/snackbar_text"),
+              "Snackbar text doesn't disappear.",
+              15);
+    }
   }
-
 
   @Ignore
   @Test
@@ -734,6 +736,15 @@ public class FirstTest {
       String default_message =
               "An element '" + by.toString() + "' supposed to be present.";
       throw new AssertionError(default_message + " " + error_message);
+    }
+  }
+
+  public boolean assertElementPresent(By locator) {
+    try {
+      driver.findElement(locator);
+      return true;
+    } catch (NoSuchElementException ex) {
+      return false;
     }
   }
 
