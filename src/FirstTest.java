@@ -286,6 +286,24 @@ public class FirstTest {
             title_after_second_rotation_to_PORTRAIT_mode);
   }
 
+  @Test
+  public void testCheckSearchArticleInBackGround(){
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find 'Search Wikipedia' input");
+    waitForElementAndSendKeys(
+            By.xpath("//*[contains(@text,'Search…')]"),
+            "Java",
+            "Cannot find search input");
+    waitForElementPresent(
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+            "Cannot click to the article 'Object-oriented programming language'");
+    driver.runAppInBackground(10);
+    waitForElementPresent(
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+            "Cannot find article 'Object-oriented programming language' after returning from background");
+  }
+
   @Ignore
   @Test
   //проверяет наличие текста “Search…” в строке поиска перед вводом текста и помечает тест упавшим, если такого текста нет.
