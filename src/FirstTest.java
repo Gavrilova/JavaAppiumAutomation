@@ -185,28 +185,16 @@ public class FirstTest {
   public void testSavingTwoArticlesToOneReadingListAndDeletingOneOfThem() {
     String name_of_myList = "Learning Programming";
     openAnArticle("Java", "Object-oriented programming language");
+    Point location_Close_button =
+            waitForElementPresent(
+                    By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
+                    "Cannot fins Close 'X' button").getLocation();
     choosingMoreOptionsAddToReadingListCommand();
     creatingFirstReadingList(name_of_myList);
-    verifyThatAddedArticleToMyListMessageAppears(name_of_myList);
-    //pressButtonAddThisArticleToReadingList();
-    // close first saved article
-    closeAnArticle();
-    //adding second article 'Wikimedia list article'
+    closeAnArticle(location_Close_button);
+
     openAnArticle("Java", "Wikimedia list article");
- /*   waitForElementAndClick(
-            By.xpath("/*//*[contains(@text,'Search Wikipedia')]"),
-            "Cannot find Search Wikipedia input");
-    waitForElementAndSendKeys(
-            By.xpath("/*//*[contains(@text,'Search…')]"),
-            "Java",
-            "Cannot find search input");
-    waitForElementAndClick(
-            By.xpath("/*//*[@resource-id='org.wikipedia:id/page_list_item_container']/*//*[@text='Wikimedia list article']"),
-            "Cannot click to the article 'Wikimedia list article'");
-    waitForElementPresent(
-            By.id("org.wikipedia:id/view_page_title_text"),
-            "Cannot find title for article",
-            15);*/
+
     waitForElementAndClick(
             By.xpath("//android.widget.ImageView[@content-desc='More options']"),
             "Cannot find 'More options' button to open article options");
@@ -214,20 +202,17 @@ public class FirstTest {
     waitListOfAllElementsPresent(
             By.id("org.wikipedia:id/title"),
             "Cannot find commands from context menu 'android.widget.ListView'");
-    //adding to already created MyList
-    //assertElementPresent(By.xpath("//*[@text='Add to reading list']"));
-    //assertElementPresent(By.xpath("//android.widget.ImageView[@content-desc='Add this article to a reading list']"));
     waitForElementAndClick(
             By.xpath("//*[@text='Add to reading list']"),
             "Cannot find options to add article to reading list ");
     waitForElementAndClick(
             By.xpath("//*[@resource-id='org.wikipedia:id/item_title'][@text='" + name_of_myList + "']"),
             "Cannot find " + name_of_myList + " among the MyList folders");
-    assertElementPresent(By.id("org.wikipedia:id/snackbar_text"));
-    verifyThatAddedArticleToMyListMessageAppears(name_of_myList);
+    //assertElementPresent(By.id("org.wikipedia:id/snackbar_text"));
 
-    closeAnArticle();
-    //Finish adding second article
+
+    closeAnArticle(location_Close_button);
+
     openMyListsWindow();
     assertElementPresent(By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='Learning Programming']"));
     waitForElementAndClick(
@@ -254,11 +239,25 @@ public class FirstTest {
             "Cannot find navigation button 'My lists' to open 'My lists' folder");
   }
 
+  private void closeAnArticle(Point location) {
+    if (assertElementPresent(
+            //By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"));
+            By.id("org.wikipedia:id/page_toolbar"))) {
+      waitForElementAndClick(
+              By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
+              "Cannot find 'X' button to close article",
+              15);
+    } else {
+      clickToButton(location);
+    }
+  }
+
   private void closeAnArticle() {
     waitForElementAndClick(
             By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
             "Cannot find 'X' button to close article",
             15);
+
   }
 
   private void choosingMoreOptionsAddToReadingListCommand() {
@@ -379,14 +378,7 @@ public class FirstTest {
             15).get(0).getLocation();*/
     //button_location_Add_this_article_to_reading_list;
     System.out.println("try to close menu 'Add this article to a reading list'");
-    TouchAction action = new TouchAction(driver);
-    action
-            .press(
-                    button_location_Add_this_article_to_reading_list.getX(),
-                    button_location_Add_this_article_to_reading_list.getY())
-            .release()
-            .perform();
-
+    clickToButton(button_location_Add_this_article_to_reading_list);
     /*assertEquals(
             "Command menu Command menu 'Add this article to a reading list' button' is still open",
             assertElementPresent(By.xpath("/*//*[@text='Remove from Learning Programming']")),
@@ -395,6 +387,16 @@ public class FirstTest {
     /*waitForElementNotPresent(
             By.xpath("/*//*[@resource-id='org.wikipedia:id/title'][@text='Remove from Learning Programming']"),
             "Command menu 'Add this article to a reading list' button' is still open");*/
+  }
+
+  private void clickToButton(Point button_location_Add_this_article_to_reading_list) {
+    TouchAction action = new TouchAction(driver);
+    action
+            .press(
+                    button_location_Add_this_article_to_reading_list.getX(),
+                    button_location_Add_this_article_to_reading_list.getY())
+            .release()
+            .perform();
   }
 
   @Ignore
