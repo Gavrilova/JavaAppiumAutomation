@@ -10,6 +10,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -222,9 +223,9 @@ public class FirstTest {
     waitForElementAndClick(
             By.xpath("//*[@resource-id='org.wikipedia:id/item_title'][@text='" + name_of_myList + "']"),
             "Cannot find " + name_of_myList + " among the MyList folders");
-    //assertElementPresent(By.id("org.wikipedia:id/snackbar_text"));
+    assertElementPresent(By.id("org.wikipedia:id/snackbar_text"));
     verifyThatAddedArticleToMyListMessageAppears(name_of_myList);
-    //System.out.println("Wanted to close an article");
+
     closeAnArticle();
     //Finish adding second article
     openMyListsWindow();
@@ -331,11 +332,6 @@ public class FirstTest {
     //2) number of articles in the list increased to 1;
 
     //we verify that snackbar text is present and will be about adding article to the list: "Added to "+name_of_myList + ".""
-/*
-    waitForElementPresent(
-            By.id("org.wikipedia:id/snackbar_text"),
-            "There is no snackbar text after adding second article 'name of the article' to the folder");
-*/
     if (assertElementPresent(By.id("org.wikipedia:id/snackbar_text"))) {
       System.out.println("SnackBar is detected");
       String message_after_adding_first_article =
@@ -366,15 +362,39 @@ public class FirstTest {
     System.out.println("try to press the button 'Add this article to a reading list'");
     By locator_Add_this_article_to_reading_list =
             By.xpath("//android.widget.ImageView[@content-desc='Add this article to a reading list']");
+    Point button_location_Add_this_article_to_reading_list = waitListOfAllElementsPresent(
+            By.className("android.support.v7.app.ActionBar$Tab"),
+            "Cannot get location for 'Add this article to a reading list' button.",
+            15).get(0).getLocation();
     waitForElementAndClick(
             locator_Add_this_article_to_reading_list,
             "Cannot click to the 'Add this article to a reading list' button.");
     waitForElementPresent(
-            By.xpath("//*[resource-id='org.wikipedia:id/title'][@text='Remove from Learning Programming']"),
+            By.xpath("//*[@resource-id='org.wikipedia:id/title'][@text='Remove from Learning Programming']"),
             "Cannot find command 'Remove from Learning Programming' after pressing button 'Add this article to a reading list'.");
-    waitForElementAndClick(
-            locator_Add_this_article_to_reading_list,
-            "Cannot roll up the menu. Cannot click to the 'Add this article to a reading list' button.");
+    //we click to the 'Add this article to a reading list' to roll up command nemu
+/*    waitListOfAllElementsPresent(
+            By.className("android.support.v7.app.ActionBar$Tab"),
+            "Cannot roll up the menu. Cannot click to the 'Add this article to a reading list' button.",
+            15).get(0).getLocation();*/
+    //button_location_Add_this_article_to_reading_list;
+    System.out.println("try to close menu 'Add this article to a reading list'");
+    TouchAction action = new TouchAction(driver);
+    action
+            .press(
+                    button_location_Add_this_article_to_reading_list.getX(),
+                    button_location_Add_this_article_to_reading_list.getY())
+            .release()
+            .perform();
+
+    /*assertEquals(
+            "Command menu Command menu 'Add this article to a reading list' button' is still open",
+            assertElementPresent(By.xpath("/*//*[@text='Remove from Learning Programming']")),
+            true);*/
+
+    /*waitForElementNotPresent(
+            By.xpath("/*//*[@resource-id='org.wikipedia:id/title'][@text='Remove from Learning Programming']"),
+            "Command menu 'Add this article to a reading list' button' is still open");*/
   }
 
   @Ignore
@@ -772,10 +792,11 @@ public class FirstTest {
 
   public boolean assertElementPresent(By locator) {
     try {
+      driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
       driver.findElement(locator);
       return true;
-    } catch (NoSuchElementException ex) {
-      System.out.println("no such elements");
+    } catch (NoSuchElementException e) {
+      System.out.println("Element is not present. Cannot find element by this locator: " + locator);
       return false;
     }
   }
