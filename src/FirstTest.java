@@ -1,9 +1,6 @@
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -185,25 +182,24 @@ public class FirstTest {
 
   public void testSavingTwoArticlesToOneReadingListAndDeletingOneOfThem() {
     String name_of_myList = "Learning Programming";
+
     openAnArticle("Java", "Object-oriented programming language");
     Point location_Close_button =
             waitForElementPresent(
                     By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
                     "Cannot fins Close 'X' button").getLocation();
-
     choosingMoreOptionsAddToReadingListCommand();
     creatingFirstReadingList(name_of_myList);
     closeAnArticle(location_Close_button);
 
     openAnArticle("Java", "Wikimedia list article");
     addArticleToReadingListUsingActionBar(name_of_myList);
-
     closeAnArticle(location_Close_button);
 
     openMyListsWindow();
-    assertElementPresent(By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='Learning Programming']"));
+    assertElementPresent(By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"));
     waitForElementAndClick(
-            By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='Learning Programming']"),
+            By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"),
             "Cannot find created '" + name_of_myList + "' folder in 'My lists'",
             15);
     waitForElementPresent(
@@ -225,8 +221,8 @@ public class FirstTest {
             By.className("android.support.v7.app.ActionBar$Tab"),
             "Cannot locate button on Action Tab").get(0).click();
     waitForElementAndClick(
-            By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='"+name_of_myList+"']"),
-            "Cannot find "+name_of_myList+" list in the Reading Lists.");
+            By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"),
+            "Cannot find " + name_of_myList + " list in the Reading Lists.");
   }
 
   private void openMyListsWindow() {
@@ -237,8 +233,7 @@ public class FirstTest {
 
   private void closeAnArticle(Point location) {
     if (assertElementPresent(
-            //By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"));
-            By.id("org.wikipedia:id/page_toolbar"))) {
+            By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"))) {
       waitForElementAndClick(
               By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
               "Cannot find 'X' button to close article",
@@ -295,7 +290,8 @@ public class FirstTest {
             "Cannot click to the article '" + articleName + "'");
     waitForElementPresent(
             By.id("org.wikipedia:id/view_page_title_text"),
-            "Cannot find title for article");
+            "Cannot find title for article",
+            15);
   }
 
   private void creatingFirstReadingList(String name_of_myList) {
@@ -362,12 +358,8 @@ public class FirstTest {
             By.xpath("//*[@resource-id='org.wikipedia:id/title'][@text='Remove from Learning Programming']"),
             "Cannot find command 'Remove from Learning Programming' after pressing button 'Add this article to a reading list'.");
     //we click to the 'Add this article to a reading list' to roll up command nemu
-/*    waitListOfAllElementsPresent(
-            By.className("android.support.v7.app.ActionBar$Tab"),
-            "Cannot roll up the menu. Cannot click to the 'Add this article to a reading list' button.",
-            15).get(0).getLocation();*/
     //button_location_Add_this_article_to_reading_list;
-    System.out.println("try to close menu 'Add this article to a reading list'");
+    //System.out.println("try to close menu 'Add this article to a reading list'");
     clickToButton(button_location_Add_this_article_to_reading_list);
     /*assertEquals(
             "Command menu Command menu 'Add this article to a reading list' button' is still open",
@@ -783,14 +775,16 @@ public class FirstTest {
   }
 
   public boolean assertElementPresent(By locator) {
+    String msg = "Element is not present. Cannot find element by this locator: " + locator;
+    Boolean result = true;
     try {
-      driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
       driver.findElement(locator);
-      return true;
-    } catch (NoSuchElementException e) {
-      System.out.println("Element is not present. Cannot find element by this locator: " + locator);
-      return false;
+    } catch (NoSuchElementException exception) {
+      driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+      result = false;
     }
+    Assert.assertEquals(msg, result, true);
+    return result;
   }
 
   private String waitForElementAndGetAttribute(By by, String attribute, String error_message, long timeoutInSeconds) {
