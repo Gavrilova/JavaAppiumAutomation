@@ -39,6 +39,7 @@ public class FirstTest {
   @After
   public void tearDown() {
     driver.quit();
+    driver = null;
   }
 
   @Ignore
@@ -189,27 +190,13 @@ public class FirstTest {
             waitForElementPresent(
                     By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
                     "Cannot fins Close 'X' button").getLocation();
+
     choosingMoreOptionsAddToReadingListCommand();
     creatingFirstReadingList(name_of_myList);
     closeAnArticle(location_Close_button);
 
     openAnArticle("Java", "Wikimedia list article");
-
-    waitForElementAndClick(
-            By.xpath("//android.widget.ImageView[@content-desc='More options']"),
-            "Cannot find 'More options' button to open article options");
-    //we wait here presents of all menus from context menu 'More options' android.widget.ListView;
-    waitListOfAllElementsPresent(
-            By.id("org.wikipedia:id/title"),
-            "Cannot find commands from context menu 'android.widget.ListView'");
-    waitForElementAndClick(
-            By.xpath("//*[@text='Add to reading list']"),
-            "Cannot find options to add article to reading list ");
-    waitForElementAndClick(
-            By.xpath("//*[@resource-id='org.wikipedia:id/item_title'][@text='" + name_of_myList + "']"),
-            "Cannot find " + name_of_myList + " among the MyList folders");
-    //assertElementPresent(By.id("org.wikipedia:id/snackbar_text"));
-
+    addArticleToReadingListUsingActionBar(name_of_myList);
 
     closeAnArticle(location_Close_button);
 
@@ -233,6 +220,15 @@ public class FirstTest {
             "Cannot find saved article 'Java version history'");
   }
 
+  private void addArticleToReadingListUsingActionBar(String name_of_myList) {
+    waitListOfAllElementsPresent(
+            By.className("android.support.v7.app.ActionBar$Tab"),
+            "Cannot locate button on Action Tab").get(0).click();
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='"+name_of_myList+"']"),
+            "Cannot find "+name_of_myList+" list in the Reading Lists.");
+  }
+
   private void openMyListsWindow() {
     waitForElementAndClick(
             By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"),
@@ -250,14 +246,9 @@ public class FirstTest {
     } else {
       clickToButton(location);
     }
-  }
-
-  private void closeAnArticle() {
-    waitForElementAndClick(
-            By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
-            "Cannot find 'X' button to close article",
-            15);
-
+    waitForElementNotPresent(
+            By.id("org.wikipedia:id/view_page_title_text"),
+            "Cannot close an article. The title is still here.");
   }
 
   private void choosingMoreOptionsAddToReadingListCommand() {
@@ -304,8 +295,7 @@ public class FirstTest {
             "Cannot click to the article '" + articleName + "'");
     waitForElementPresent(
             By.id("org.wikipedia:id/view_page_title_text"),
-            "Cannot find title for article",
-            5);
+            "Cannot find title for article");
   }
 
   private void creatingFirstReadingList(String name_of_myList) {
