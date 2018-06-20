@@ -183,10 +183,11 @@ public class FirstTest {
 
   public void testSavingTwoArticlesToOneReadingListAndDeletingOneOfThem() {
     String name_of_myList = "Learning Programming";
+    String search_keyword = "Java";
     int counter_article = 0;
     List<String> articleTitles = Arrays.asList("Java (programming language)", "Java version history");
 
-    openAnArticle("Java", "Object-oriented programming language");
+    openAnArticle(search_keyword, articleTitles.get(0));
     Point location_Close_button =
             waitForElementPresent(
                     By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
@@ -199,7 +200,7 @@ public class FirstTest {
     // int counter = verificationOfSavedArticle(name_of_myList, articleTitles.get(0), counter_article);
 
 
-    openAnArticle("Java", "Wikimedia list article");
+    openAnArticle(search_keyword, articleTitles.get(1));
     addArticleToReadingListUsingActionBar(name_of_myList);
     assertElementPresent(By.xpath("//android.widget.Button[@text='VIEW LIST']"));
     //verificationOfSavedArticle(name_of_myList, articleTitles.get(1), counter);
@@ -212,17 +213,17 @@ public class FirstTest {
             "Cannot find created '" + name_of_myList + "' folder in 'My lists'",
             15);
     waitForElementPresent(
-            By.xpath("//*[@text='Java (programming language)']"),
-            "Cannot find article 'Java (programming language)' in '" + name_of_myList + "' folder");
+            By.xpath("//*[@text='"+articleTitles.get(0)+"']"),
+            "Cannot find article '"+articleTitles.get(0)+"' in '" + name_of_myList + "' folder");
     swipeElementToLeft(
-            By.xpath("//*[@text='Java (programming language)']"),
-            "Cannot find article saved  article 'Java (programming language)'");
+            By.xpath("//*[@text='"+articleTitles.get(0)+"']"),
+            "Cannot find article saved  article '"+articleTitles.get(0)+"'");
     waitForElementNotPresent(
-            By.xpath("//*[@text='Java (programming language)']"),
-            "Cannot delete saved article 'Java (programming language)'");
+            By.xpath("//*[@text='"+articleTitles.get(0)+"']"),
+            "Cannot delete saved article '"+articleTitles.get(0)+"'");
     waitForElementPresent(
-            By.xpath("//*[@text='Java version history']"),
-            "Cannot find saved article 'Java version history'");
+            By.xpath("//*[@text='"+articleTitles.get(1)+"']"),
+            "Cannot find saved article '"+articleTitles.get(1)+"'");
   }
 
   private int verificationOfSavedArticle(String name_of_myList, String articleTitle, int counter_article) {
