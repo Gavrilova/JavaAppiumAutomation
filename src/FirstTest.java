@@ -6,6 +6,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -182,6 +183,8 @@ public class FirstTest {
 
   public void testSavingTwoArticlesToOneReadingListAndDeletingOneOfThem() {
     String name_of_myList = "Learning Programming";
+    int counter_article = 0;
+    List<String> articleTitles = Arrays.asList("Java (programming language)", "Java version history");
 
     openAnArticle("Java", "Object-oriented programming language");
     Point location_Close_button =
@@ -190,10 +193,16 @@ public class FirstTest {
                     "Cannot fins Close 'X' button").getLocation();
     choosingMoreOptionsAddToReadingListCommand();
     creatingFirstReadingList(name_of_myList);
+    assertElementPresent(By.xpath("//android.widget.Button[@text='VIEW LIST']"));
     closeAnArticle(location_Close_button);
+
+    // int counter = verificationOfSavedArticle(name_of_myList, articleTitles.get(0), counter_article);
+
 
     openAnArticle("Java", "Wikimedia list article");
     addArticleToReadingListUsingActionBar(name_of_myList);
+    assertElementPresent(By.xpath("//android.widget.Button[@text='VIEW LIST']"));
+    //verificationOfSavedArticle(name_of_myList, articleTitles.get(1), counter);
     closeAnArticle(location_Close_button);
 
     openMyListsWindow();
@@ -214,6 +223,36 @@ public class FirstTest {
     waitForElementPresent(
             By.xpath("//*[@text='Java version history']"),
             "Cannot find saved article 'Java version history'");
+  }
+
+  private int verificationOfSavedArticle(String name_of_myList, String articleTitle, int counter_article) {
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/fragment_main_nav_tab_layout']//*[@content-desc='My lists']"),
+            "Cannot locate and click to the 'My lists' icon on low tab.",
+            15);
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"),
+            "Cannot find created list " + name_of_myList + " in the reading lists.",
+            15);
+    List<String> titles = waitForElementsAndGetAttributes(
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title']"),
+            "text",
+            "Cannot find any saved articles in the reading list " + name_of_myList + ".",
+            15);
+    assertTrue(
+            "Quantity of saved article should be " + counter_article + 1 + ", instead of " + titles.size() + ".",
+            titles.size() == (counter_article + 1));
+    assertEquals(
+            "Title of the article: '" + titles.get(0) + "' is not as supposed to be.",
+            titles.get(0),
+            articleTitle);
+    waitForElementAndClick(
+            By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
+            "Cannot tap arrow back button");
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/fragment_main_nav_tab_layout']//*[@content-desc='Explore']"),
+            "Cannot locate and click to the 'Explore' icon on low tab.");
+    return titles.size();
   }
 
   private void addArticleToReadingListUsingActionBar(String name_of_myList) {
@@ -778,6 +817,7 @@ public class FirstTest {
     String msg = "Element is not present. Cannot find element by this locator: " + locator;
     Boolean result = true;
     try {
+     // driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
       driver.findElement(locator);
     } catch (NoSuchElementException exception) {
       driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
