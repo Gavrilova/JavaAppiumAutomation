@@ -159,7 +159,7 @@ public class FirstTest {
     waitForElementAndClick(
             By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
             "Cannot find 'X' button to close article");
-    openMyListsWindow();
+    goToMyListPage();
     waitForElementAndClick(
             By.xpath("//*[@text='" + name_of_folder + "']"),
             "Cannot find created '" + name_of_folder + "' folder in 'My lists'");
@@ -186,7 +186,6 @@ public class FirstTest {
     String search_keyword = "Java";
     int counter_article = 0;
     List<String> articleTitles = Arrays.asList("Java", "Java (programming language)"); //"Java version history"
-
     openAnArticle(search_keyword, articleTitles.get(0));
     Point location_Close_button =
             waitForElementPresent(
@@ -196,39 +195,61 @@ public class FirstTest {
     creatingFirstReadingList(name_of_myList);
     //assertElementPresent(By.xpath("//android.widget.Button[@text='VIEW LIST']"));
     closeAnArticle(location_Close_button);
-
-
-    waitForElementAndClick(
-            By.xpath("//*[@resource-id='org.wikipedia:id/fragment_main_nav_tab_layout']//*[@content-desc='My lists']"),
+    goToMyListPage();
+    /*waitForElementAndClick(
+            By.xpath("/*//*[@resource-id='org.wikipedia:id/fragment_main_nav_tab_layout']/*//*[@content-desc='My lists']"),
             "Cannot locate and click to the 'My lists' icon on low tab.",
-            15);
+            15);*/
+    clickToReadingList(name_of_myList);
+/*
+    waitForElementAndClick(
+            By.xpath("/*//*[@resource-id='org.wikipedia:id/item_container']/*//*[@text='" + name_of_myList + "']"),
+            "Cannot find created list " + name_of_myList + " in the reading lists.",
+            15);*/
+
+    List<String> titles_after_saving_First_article = checkNumbersOfArticles(name_of_myList, counter_article);
+    assertEquals(
+            "Title of the article: '" + titles_after_saving_First_article.get(0) + "' is not as supposed to be.",
+            titles_after_saving_First_article.get(0),
+            articleTitles.get(0));
+    goBack();
+    goToExplorePage();
+    openAnArticle(search_keyword, articleTitles.get(1));
+    addArticleToReadingListUsingActionBar(name_of_myList);
+//    assertElementPresent(By.xpath("//android.widget.Button[@text='VIEW LIST']"));
+    closeAnArticle(location_Close_button);
+    goToMyListPage();
+    assertElementPresent(By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"));
+    clickToReadingList(name_of_myList);
+    //
+    waitForElementPresent(
+            By.xpath("//*[@text='" + articleTitles.get(1) + "']"),
+            "Cannot find article '" + articleTitles.get(1) + "' in '" + name_of_myList + "' folder");
+    checkNumbersOfArticles(name_of_myList, titles_after_saving_First_article.size());
+    //
+    deleteFirstArticle(articleTitles);
+  }
+
+  private void clickToReadingList(String name_of_myList) {
     waitForElementAndClick(
             By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"),
-            "Cannot find created list " + name_of_myList + " in the reading lists.",
+            "Cannot find created reading list: '" + name_of_myList + "'  in 'My lists'",
             15);
-    int counter = verificationOfSavedArticle(name_of_myList, articleTitles.get(0), counter_article);
+  }
 
-    waitForElementAndClick(
-            By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
-            "Cannot tap arrow back button");
+  private void goToExplorePage() {
     waitForElementAndClick(
             By.xpath("//*[@resource-id='org.wikipedia:id/fragment_main_nav_tab_layout']//*[@content-desc='Explore']"),
             "Cannot locate and click to the 'Explore' icon on low tab.");
+  }
 
-    openAnArticle(search_keyword, articleTitles.get(1));
-    addArticleToReadingListUsingActionBar(name_of_myList);
-    //assertElementPresent(By.xpath("//android.widget.Button[@text='VIEW LIST']"));
-    closeAnArticle(location_Close_button);
-
-    openMyListsWindow();
-    assertElementPresent(By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"));
+  private void goBack() {
     waitForElementAndClick(
-            By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"),
-            "Cannot find created '" + name_of_myList + "' folder in 'My lists'",
-            15);
-    waitForElementPresent(
-            By.xpath("//*[@text='" + articleTitles.get(0) + "']"),
-            "Cannot find article '" + articleTitles.get(0) + "' in '" + name_of_myList + "' folder");
+            By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
+            "Cannot tap arrow back button");
+  }
+
+  private void deleteFirstArticle(List<String> articleTitles) {
     swipeElementToLeft(
             By.xpath("//*[@text='" + articleTitles.get(0) + "']"),
             "Cannot find article saved  article '" + articleTitles.get(0) + "'");
@@ -240,20 +261,16 @@ public class FirstTest {
             "Cannot find saved article '" + articleTitles.get(1) + "'");
   }
 
-  private int verificationOfSavedArticle(String name_of_myList, String articleTitle, int counter_article) {
+  private List<String> checkNumbersOfArticles(String name_of_myList, int counter) {
     List<String> titles = waitForElementsAndGetAttributes(
-            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title']"),
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title']"), //org.wikipedia:id/page_list_item_title
             "text",
             "Cannot find any saved articles in the reading list " + name_of_myList + ".",
             15);
     assertTrue(
-            "Quantity of saved article should be " + counter_article + 1 + ", instead of " + titles.size() + ".",
-            titles.size() == (counter_article + 1));
-    assertEquals(
-            "Title of the article: '" + titles.get(0) + "' is not as supposed to be.",
-            titles.get(0),
-            articleTitle);
-    return titles.size();
+            "Quantity of saved article should be " + counter + 1 + ", instead of " + titles.size() + ".",
+            titles.size() == (counter + 1));
+    return titles;
   }
 
   private void addArticleToReadingListUsingActionBar(String name_of_myList) {
@@ -265,7 +282,7 @@ public class FirstTest {
             "Cannot find " + name_of_myList + " list in the Reading Lists.");
   }
 
-  private void openMyListsWindow() {
+  private void goToMyListPage() {
     waitForElementAndClick(
             By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"),
             "Cannot find navigation button 'My lists' to open 'My lists' folder");
@@ -348,67 +365,6 @@ public class FirstTest {
     waitForElementAndClick(
             By.xpath("//*[@text='OK']"),
             "Cannot press 'OK' button to save article's folder");
-  }
-
-  private void verifyThatAddedArticleToMyListMessageAppears(String name_of_myList) {
-
-    //We verify, that article were added to the list:
-    //1) appropriate message appears;
-    //2) number of articles in the list increased to 1;
-
-    //we verify that snackbar text is present and will be about adding article to the list: "Added to "+name_of_myList + ".""
-    if (assertElementPresent(By.id("org.wikipedia:id/snackbar_text"))) {
-      System.out.println("SnackBar is detected");
-      String message_after_adding_first_article =
-              waitForElementAndGetAttribute(
-                      By.id("org.wikipedia:id/snackbar_text"),
-                      "text",
-                      "There is no snackbar text after adding second article 'name of the article' to the folder",
-                      5);
-      assertEquals(
-              "Message after adding atricle should be 'Added to " + name_of_myList + ".'",
-              message_after_adding_first_article,
-              "Added to " + name_of_myList + ".");
-
-      waitForElementNotPresent(
-              By.id("org.wikipedia:id/snackbar_text"),
-              "Snackbar text doesn't disappear.",
-              15);
-    } /*else {
-      pressButtonAddThisArticleToReadingList();
-    }*/
-    waitForElementNotPresent(
-            By.id("org.wikipedia:id/snackbar_text"),
-            "Snackbar text doesn't disappear.",
-            15);
-  }
-
-  private void pressButtonAddThisArticleToReadingList() {
-    System.out.println("try to press the button 'Add this article to a reading list'");
-    By locator_Add_this_article_to_reading_list =
-            By.xpath("//android.widget.ImageView[@content-desc='Add this article to a reading list']");
-    Point button_location_Add_this_article_to_reading_list = waitListOfAllElementsPresent(
-            By.className("android.support.v7.app.ActionBar$Tab"),
-            "Cannot get location for 'Add this article to a reading list' button.",
-            15).get(0).getLocation();
-    waitForElementAndClick(
-            locator_Add_this_article_to_reading_list,
-            "Cannot click to the 'Add this article to a reading list' button.");
-    waitForElementPresent(
-            By.xpath("//*[@resource-id='org.wikipedia:id/title'][@text='Remove from Learning Programming']"),
-            "Cannot find command 'Remove from Learning Programming' after pressing button 'Add this article to a reading list'.");
-    //we click to the 'Add this article to a reading list' to roll up command nemu
-    //button_location_Add_this_article_to_reading_list;
-    //System.out.println("try to close menu 'Add this article to a reading list'");
-    clickToButton(button_location_Add_this_article_to_reading_list);
-    /*assertEquals(
-            "Command menu Command menu 'Add this article to a reading list' button' is still open",
-            assertElementPresent(By.xpath("/*//*[@text='Remove from Learning Programming']")),
-            true);*/
-
-    /*waitForElementNotPresent(
-            By.xpath("/*//*[@resource-id='org.wikipedia:id/title'][@text='Remove from Learning Programming']"),
-            "Command menu 'Add this article to a reading list' button' is still open");*/
   }
 
   private void clickToButton(Point button_location_Add_this_article_to_reading_list) {
