@@ -180,9 +180,9 @@ public class FirstTest {
   @Test
 
   /* 1. Сохраняет две статьи в одну папку
-    2. Удаляет одну из статей
-    3. Убеждается, что вторая осталась
-    4. Переходит в неё и убеждается, что title совпадает*/
+     2. Удаляет одну из статей
+     3. Убеждается, что вторая осталась
+     4. Переходит в неё и убеждается, что title совпадает*/
 
   public void testSavingTwoArticlesToOneReadingListAndDeletingOneOfThem() {
     String name_of_myList = "Learning Programming";
@@ -204,7 +204,6 @@ public class FirstTest {
     addArticleToReadingListUsingActionBar(name_of_myList);
     closeAnArticle(location_Close_button);
     goToMyListPage();
-    assertElementPresent(By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"));
     clickToReadingList(name_of_myList);
     checkTitleSecondSavedArticle(name_of_myList, articleTitles);
     checkNumbersOfArticles(name_of_myList, titles_after_saving_First_article.size());
@@ -263,7 +262,8 @@ public class FirstTest {
 
   private List<String> checkNumbersOfArticles(String name_of_myList, int counter) {
     List<String> titles = waitForElementsAndGetAttributes(
-            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@resource-id='org.wikipedia:id/page_list_item_title']"), //org.wikipedia:id/page_list_item_title
+            //By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@resource-id='org.wikipedia:id/page_list_item_title']"), //org.wikipedia:id/page_list_item_title
+            By.xpath("//*[@resource-id='org.wikipedia:id/reading_list_contents']//*[@resource-id='org.wikipedia:id/page_list_item_title']"),
             "text",
             "Cannot find any saved articles in the reading list " + name_of_myList + ".",
             15);
@@ -348,34 +348,49 @@ public class FirstTest {
                     "text",
                     "Cannot find any search results for '" + searchKeyword + "'.",
                     15);
+    assertTrue(
+            "Unfortunately, we didn't get enough search results by: '" + searchKeyword + "'",
+            (search_results.size() > 1));
     String article1 = search_results.get((int) (Math.random() * search_results.size()));
     search_results.remove(article1);
     String article2 = search_results.get((int) (Math.random() * search_results.size()));
     System.out.println(article1 + ", " + article2);
-    waitForElementAndClick(
-            By.xpath("//*[@resource-id='org.wikipedia:id/search_toolbar']//android.widget.ImageButton"),
+    /*waitForElementAndClick(
+            By.xpath("/*//*[@resource-id='org.wikipedia:id/search_toolbar']//android.widget.ImageButton"),
             "Cannot click to Arrow Back button.");
     waitForElementPresent(
             By.xpath("//android.widget.TextView[@text='Search Wikipedia']"),
-            "Cannot go back to Explore page.");
+            "Cannot go back to Explore page.");*/
     return Arrays.asList(article1, article2);
   }
 
   private void openAnArticle(String searchKeyword, String articleName) {
-    waitForElementAndClick(
-            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
-            "Cannot find Search Wikipedia input");
-    waitForElementAndSendKeys(
-            By.xpath("//*[contains(@text,'Search…')]"),
-            searchKeyword,
-            "Cannot find search input");
-    waitForElementAndClick(
+    if (assertElementPresent(By.id("org.wikipedia:id/single_fragment_toolbar_wordmark"))
+            &&assertElementPresent(By.id("org.wikipedia:id/search_container"))) {
+      waitForElementAndClick(
+              By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+              "Cannot find Search Wikipedia input");
+      waitForElementAndSendKeys(
+              By.xpath("//*[contains(@text,'Search…')]"),
+              searchKeyword,
+              "Cannot find search input");
+      waitForElementAndClick(
+              By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='" + articleName + "']"),
+              "Cannot click to the article '" + articleName + "'");
+      waitForElementPresent(
+              By.id("org.wikipedia:id/view_page_title_text"),
+              "Cannot find title for article",
+              15);
+    } else {
+      waitForElementAndClick(
             By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='" + articleName + "']"),
-            "Cannot click to the article '" + articleName + "'");
-    waitForElementPresent(
-            By.id("org.wikipedia:id/view_page_title_text"),
-            "Cannot find title for article",
-            15);
+            "Cannot click to the articl/**/e '" + articleName + "'");
+      waitForElementPresent(
+              By.id("org.wikipedia:id/view_page_title_text"),
+              "Cannot find title for article",
+              15);
+
+    }
   }
 
   private void creatingFirstReadingList(String name_of_myList) {
