@@ -196,38 +196,34 @@ public class FirstTest {
     //assertElementPresent(By.xpath("//android.widget.Button[@text='VIEW LIST']"));
     closeAnArticle(location_Close_button);
     goToMyListPage();
-    /*waitForElementAndClick(
-            By.xpath("/*//*[@resource-id='org.wikipedia:id/fragment_main_nav_tab_layout']/*//*[@content-desc='My lists']"),
-            "Cannot locate and click to the 'My lists' icon on low tab.",
-            15);*/
     clickToReadingList(name_of_myList);
-/*
-    waitForElementAndClick(
-            By.xpath("/*//*[@resource-id='org.wikipedia:id/item_container']/*//*[@text='" + name_of_myList + "']"),
-            "Cannot find created list " + name_of_myList + " in the reading lists.",
-            15);*/
-
     List<String> titles_after_saving_First_article = checkNumbersOfArticles(name_of_myList, counter_article);
-    assertEquals(
-            "Title of the article: '" + titles_after_saving_First_article.get(0) + "' is not as supposed to be.",
-            titles_after_saving_First_article.get(0),
-            articleTitles.get(0));
+    checkTitleFirstSavedArticle(articleTitles, titles_after_saving_First_article);
     goBack();
     goToExplorePage();
     openAnArticle(search_keyword, articleTitles.get(1));
     addArticleToReadingListUsingActionBar(name_of_myList);
-//    assertElementPresent(By.xpath("//android.widget.Button[@text='VIEW LIST']"));
+    //assertElementPresent(By.xpath("//android.widget.Button[@text='VIEW LIST']"));
     closeAnArticle(location_Close_button);
     goToMyListPage();
     assertElementPresent(By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"));
     clickToReadingList(name_of_myList);
-    //
+    checkTitleSecondSavedArticle(name_of_myList, articleTitles);
+    checkNumbersOfArticles(name_of_myList, titles_after_saving_First_article.size());
+    deleteFirstArticle(articleTitles);
+  }
+
+  private void checkTitleFirstSavedArticle(List<String> articleTitles, List<String> titles_after_saving_First_article) {
+    assertEquals(
+            "Title of the article: '" + titles_after_saving_First_article.get(0) + "' is not as supposed to be.",
+            titles_after_saving_First_article.get(0),
+            articleTitles.get(0));
+  }
+
+  private void checkTitleSecondSavedArticle(String name_of_myList, List<String> articleTitles) {
     waitForElementPresent(
             By.xpath("//*[@text='" + articleTitles.get(1) + "']"),
             "Cannot find article '" + articleTitles.get(1) + "' in '" + name_of_myList + "' folder");
-    checkNumbersOfArticles(name_of_myList, titles_after_saving_First_article.size());
-    //
-    deleteFirstArticle(articleTitles);
   }
 
   private void clickToReadingList(String name_of_myList) {
