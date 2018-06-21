@@ -234,6 +234,10 @@ public class FirstTest {
             By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"),
             "Cannot find created reading list: '" + name_of_myList + "'  in 'My lists'",
             15);
+    waitForElementNotPresent(
+            By.xpath("//*[@resource-id='org.wikipedia:id/single_fragment_toolbar']//*[@text='My lists']"),
+            "Cannot open reading list '" + name_of_myList + "'  in 'My lists'",
+            10);
   }
 
   private void goToExplorePage() {
