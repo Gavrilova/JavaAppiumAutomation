@@ -1,9 +1,6 @@
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -266,7 +263,6 @@ public class FirstTest {
 
   private List<String> checkNumbersOfArticles(String name_of_myList, int counter) {
     List<String> titles = waitForElementsAndGetAttributes(
-            //By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@resource-id='org.wikipedia:id/page_list_item_title']"), //org.wikipedia:id/page_list_item_title
             By.xpath("//*[@resource-id='org.wikipedia:id/reading_list_contents']//*[@resource-id='org.wikipedia:id/page_list_item_title']"),
             "text",
             "Cannot find any saved articles in the reading list " + name_of_myList + ".",
@@ -293,7 +289,7 @@ public class FirstTest {
   }
 
   private void closeAnArticle(Point location) {
-    if (assertElementPresent(
+    if (assertElementsPresent(
             By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"))) {
       waitForElementAndClick(
               By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
@@ -338,7 +334,7 @@ public class FirstTest {
             15);
   }
 
-  private List<String> getArticlesTitles(String searchKeyword) { //"Java programming"
+  private List<String> getArticlesTitles(String searchKeyword) {
     waitForElementAndClick(
             By.xpath("//*[contains(@text,'Search Wikipedia')]"),
             "Cannot find Search Wikipedia input");
@@ -358,19 +354,12 @@ public class FirstTest {
     String article1 = search_results.get((int) (Math.random() * search_results.size()));
     search_results.remove(article1);
     String article2 = search_results.get((int) (Math.random() * search_results.size()));
-    System.out.println(article1 + ", " + article2);
-    /*waitForElementAndClick(
-            By.xpath("/*//*[@resource-id='org.wikipedia:id/search_toolbar']//android.widget.ImageButton"),
-            "Cannot click to Arrow Back button.");
-    waitForElementPresent(
-            By.xpath("//android.widget.TextView[@text='Search Wikipedia']"),
-            "Cannot go back to Explore page.");*/
     return Arrays.asList(article1, article2);
   }
 
   private void openAnArticle(String searchKeyword, String articleName) {
-    if (assertElementPresent(By.id("org.wikipedia:id/single_fragment_toolbar_wordmark"))
-            &&assertElementPresent(By.id("org.wikipedia:id/search_container"))) {
+    if (assertElementsPresent(By.id("org.wikipedia:id/single_fragment_toolbar_wordmark"))
+            && assertElementsPresent(By.id("org.wikipedia:id/search_container"))) {
       waitForElementAndClick(
               By.xpath("//*[contains(@text,'Search Wikipedia')]"),
               "Cannot find Search Wikipedia input");
@@ -387,8 +376,8 @@ public class FirstTest {
               15);
     } else {
       waitForElementAndClick(
-            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='" + articleName + "']"),
-            "Cannot click to the articl/**/e '" + articleName + "'");
+              By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='" + articleName + "']"),
+              "Cannot click to the article '" + articleName + "'");
       waitForElementPresent(
               By.id("org.wikipedia:id/view_page_title_text"),
               "Cannot find title for article",
@@ -809,25 +798,27 @@ public class FirstTest {
 
   private void isElementPresent(By by, String error_message) {
     int amount_of_elements = getAmountOfElements(by);
-    if (amount_of_elements > 0) {
+    if (amount_of_elements == 0) {
       String default_message =
               "An element '" + by.toString() + "' supposed to be present.";
       throw new AssertionError(default_message + " " + error_message);
     }
   }
 
+  public boolean assertElementsPresent(By locator){
+    return driver.findElements(locator).size() > 0;
+  }
+
   public boolean assertElementPresent(By locator) {
     String msg = "Element is not present. Cannot find element by this locator: " + locator;
-    Boolean result = true;
     try {
-      // driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
       driver.findElement(locator);
+      return true;
     } catch (NoSuchElementException exception) {
       driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-      result = false;
+     // System.out.println(msg);
+      return false;
     }
-    //Assert.assertEquals(msg, result, true);
-    return result;
   }
 
   private String waitForElementAndGetAttribute(By by, String attribute, String error_message, long timeoutInSeconds) {
