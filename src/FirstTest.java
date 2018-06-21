@@ -1,6 +1,9 @@
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -183,17 +186,13 @@ public class FirstTest {
 
   public void testSavingTwoArticlesToOneReadingListAndDeletingOneOfThem() {
     String name_of_myList = "Learning Programming";
-    String search_keyword = "Java";
+    String search_keyword = "Java programming";
     int counter_article = 0;
-    List<String> articleTitles = Arrays.asList("Java", "Java (programming language)"); //"Java version history"
+    List<String> articleTitles = getArticlesTitles(search_keyword);
     openAnArticle(search_keyword, articleTitles.get(0));
-    Point location_Close_button =
-            waitForElementPresent(
-                    By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
-                    "Cannot fins Close 'X' button").getLocation();
+    Point location_Close_button = getLocationXbutton();
     choosingMoreOptionsAddToReadingListCommand();
     creatingFirstReadingList(name_of_myList);
-    //assertElementPresent(By.xpath("//android.widget.Button[@text='VIEW LIST']"));
     closeAnArticle(location_Close_button);
     goToMyListPage();
     clickToReadingList(name_of_myList);
@@ -203,7 +202,6 @@ public class FirstTest {
     goToExplorePage();
     openAnArticle(search_keyword, articleTitles.get(1));
     addArticleToReadingListUsingActionBar(name_of_myList);
-    //assertElementPresent(By.xpath("//android.widget.Button[@text='VIEW LIST']"));
     closeAnArticle(location_Close_button);
     goToMyListPage();
     assertElementPresent(By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + name_of_myList + "']"));
@@ -211,6 +209,12 @@ public class FirstTest {
     checkTitleSecondSavedArticle(name_of_myList, articleTitles);
     checkNumbersOfArticles(name_of_myList, titles_after_saving_First_article.size());
     deleteFirstArticle(articleTitles);
+  }
+
+  private Point getLocationXbutton() {
+    return waitForElementPresent(
+            By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
+            "Cannot fins Close 'X' button").getLocation();
   }
 
   private void checkTitleFirstSavedArticle(List<String> articleTitles, List<String> titles_after_saving_First_article) {
@@ -259,7 +263,7 @@ public class FirstTest {
 
   private List<String> checkNumbersOfArticles(String name_of_myList, int counter) {
     List<String> titles = waitForElementsAndGetAttributes(
-            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title']"), //org.wikipedia:id/page_list_item_title
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@resource-id='org.wikipedia:id/page_list_item_title']"), //org.wikipedia:id/page_list_item_title
             "text",
             "Cannot find any saved articles in the reading list " + name_of_myList + ".",
             15);
@@ -328,6 +332,33 @@ public class FirstTest {
             By.id("org.wikipedia:id/view_page_title_text"),
             "Cannot find title for article",
             15);
+  }
+
+  private List<String> getArticlesTitles(String searchKeyword) { //"Java programming"
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find Search Wikipedia input");
+    waitForElementAndSendKeys(
+            By.xpath("//*[contains(@text,'Search…')]"),
+            searchKeyword,
+            "Cannot find search input");
+    List<String> search_results =
+            waitForElementsAndGetAttributes(
+                    By.id("org.wikipedia:id/page_list_item_title"),
+                    "text",
+                    "Cannot find any search results for '" + searchKeyword + "'.",
+                    15);
+    String article1 = search_results.get((int) (Math.random() * search_results.size()));
+    search_results.remove(article1);
+    String article2 = search_results.get((int) (Math.random() * search_results.size()));
+    System.out.println(article1 + ", " + article2);
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/search_toolbar']//android.widget.ImageButton"),
+            "Cannot click to Arrow Back button.");
+    waitForElementPresent(
+            By.xpath("//android.widget.TextView[@text='Search Wikipedia']"),
+            "Cannot go back to Explore page.");
+    return Arrays.asList(article1, article2);
   }
 
   private void openAnArticle(String searchKeyword, String articleName) {
