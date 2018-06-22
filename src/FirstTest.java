@@ -289,7 +289,7 @@ public class FirstTest {
   }
 
   private void closeAnArticle(Point location) {
-    if (assertElementsPresent(
+    if (assertElementPresent(
             By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"))) {
       waitForElementAndClick(
               By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
@@ -358,8 +358,8 @@ public class FirstTest {
   }
 
   private void openAnArticle(String searchKeyword, String articleName) {
-    if (assertElementsPresent(By.id("org.wikipedia:id/single_fragment_toolbar_wordmark"))
-            && assertElementsPresent(By.id("org.wikipedia:id/search_container"))) {
+    if (assertElementPresent(By.id("org.wikipedia:id/single_fragment_toolbar_wordmark"))
+            && assertElementPresent(By.id("org.wikipedia:id/search_container"))) {
       waitForElementAndClick(
               By.xpath("//*[contains(@text,'Search Wikipedia')]"),
               "Cannot find Search Wikipedia input");
@@ -805,18 +805,18 @@ public class FirstTest {
     }
   }
 
-  public boolean assertElementsPresent(By locator){
+  private boolean assertElementsPresent(By locator){
     return driver.findElements(locator).size() > 0;
   }
 
-  public boolean assertElementPresent(By locator) {
-    String msg = "Element is not present. Cannot find element by this locator: " + locator;
+  private boolean assertElementPresent(By locator) {
+    String error_message = "Element is not present. Cannot find element by this locator: " + locator;
     try {
       driver.findElement(locator);
       return true;
-    } catch (NoSuchElementException exception) {
+    } catch (NoSuchElementException exc) {
       driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-     // System.out.println(msg);
+      System.out.println(error_message);
       return false;
     }
   }
