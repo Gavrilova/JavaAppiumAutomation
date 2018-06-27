@@ -1,6 +1,7 @@
 import io.appium.java_client.TouchAction;
 import lib.CoreTestCase;
 import lib.ui.MainPageObject;
+import lib.ui.SearchPageObject;
 import org.junit.Test;
 import org.openqa.selenium.*;
 
@@ -10,33 +11,26 @@ import java.util.List;
 /**
  * Created by irinagavrilova on 5/17/18.
  */
-public class FirstTest extends CoreTestCase{
-private MainPageObject mainPageObject;
-  protected void setUp() throws Exception{
+public class FirstTest extends CoreTestCase {
+  private MainPageObject mainPageObject;
+  private SearchPageObject searchPageObject;
+
+  protected void setUp() throws Exception {
     super.setUp();
     mainPageObject = new MainPageObject(driver);
+    searchPageObject = new SearchPageObject(driver);
   }
 
-  
+
   @Test
   public void testSearch() {
-    mainPageObject.waitForElementAndClick(
-            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
-            "Cannot find Search Wikipedia input",
-            5);
-    mainPageObject.waitForElementAndSendKeys(
-            By.xpath("//*[contains(@text,'Search…')]"),
-            "Java",
-            "Cannot find search input",
-            5);
+    searchPageObject.initSearchInput();
+    searchPageObject.typeSearchLine("Java");
+    searchPageObject.waitForSearchResult("Object-oriented programming language");
 
-    mainPageObject.waitForElementPresent(
-            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
-            "Cannot find 'Object-oriented programming language' text in topic searching by 'Java'",
-            15);
   }
 
-  
+
   @Test
   public void testCancelSearch() {
 
@@ -68,7 +62,7 @@ private MainPageObject mainPageObject;
     );
   }
 
-  
+
   @Test
   public void testCompareArticleTitle() {
     mainPageObject.waitForElementAndClick(
@@ -95,7 +89,7 @@ private MainPageObject mainPageObject;
             article_title);
   }
 
-  
+
   @Test
   public void testSwipeArticle() {
     mainPageObject.waitForElementAndClick(
@@ -121,7 +115,7 @@ private MainPageObject mainPageObject;
             20);
   }
 
-  
+
   @Test
   public void testSaveArticleToMyList() {
     String name_of_folder = "Learning Programming";
@@ -444,7 +438,7 @@ private MainPageObject mainPageObject;
             .perform();
   }
 
-  
+
   @Test
   public void testAmountOfNotEmptySearch() {
     String search_keyword = "Linkin Park discography";
@@ -467,7 +461,7 @@ private MainPageObject mainPageObject;
             amount_of_searching_results > 0);
   }
 
-  
+
   @Test
   public void testAmountOfEmptySearch() {
     String search_keyword = "m23052";
@@ -549,7 +543,7 @@ private MainPageObject mainPageObject;
             "Cannot find article 'Object-oriented programming language' after returning from background");
   }
 
-  
+
   @Test
   //проверяет наличие текста “Search…” в строке поиска перед вводом текста и помечает тест упавшим, если такого текста нет.
   public void testAssertTextInSearchField() {
@@ -572,7 +566,7 @@ private MainPageObject mainPageObject;
             text_input);
   }
 
-  
+
   @Test
    /*
    Тест, который:
@@ -619,21 +613,21 @@ private MainPageObject mainPageObject;
             "Can find searching results"));
   }
 
-  
+
   @Test
   public void SearchResultsHaveKeyword1() {
     //All searching results will contain searching keyword: "Grand Cayman":
     testSearchResultsHaveKeyword("Grand Cayman");
   }
 
-  
+
   @Test
   public void SearchResultsHaveKeyword2() {
     //At least one search result which doesn't include search keyword: "Zello":
     testSearchResultsHaveKeyword("Zello");
   }
 
-  
+
   @Test
   public void SearchResultsHaveKeyword3() {
     //There is no any searching results with (nonsence) keyword: "m56743":
