@@ -1,8 +1,6 @@
 import io.appium.java_client.TouchAction;
 import lib.CoreTestCase;
-import lib.ui.ArticlePageObject;
-import lib.ui.MainPageObject;
-import lib.ui.SearchPageObject;
+import lib.ui.*;
 import org.junit.Test;
 import org.openqa.selenium.*;
 
@@ -16,12 +14,16 @@ public class FirstTest extends CoreTestCase {
   private MainPageObject mainPageObject;
   private SearchPageObject searchPageObject;
   private ArticlePageObject articlePageObject;
+  private NavigationUI navigationUI;
+  private MyListsPageObject myListsPageObject;
 
   protected void setUp() throws Exception {
     super.setUp();
     mainPageObject = new MainPageObject(driver);
     searchPageObject = new SearchPageObject(driver);
     articlePageObject = new ArticlePageObject(driver);
+    navigationUI = new NavigationUI(driver);
+    myListsPageObject = new MyListsPageObject(driver);
   }
 
 
@@ -69,30 +71,16 @@ public class FirstTest extends CoreTestCase {
   @Test
   public void testSaveArticleToMyList() {
     String name_of_folder = "Learning Programming";
-    openAnArticle();
-    mainPageObject.waitForElementAndClick(
-            By.xpath("//android.widget.ImageView[@content-desc='More options']"),
-            "Cannot find 'More options' button to open article options");
-    mainPageObject.waitForElementAndClick(
-            By.xpath("//*[@text='Add to reading list']"),
-            "Cannot find options to add article to reading list ");
-    creatingFirstReadingList(name_of_folder);
-    mainPageObject.waitForElementAndClick(
-            By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
-            "Cannot find 'X' button to close article");
-    goToMyListPage();
-    mainPageObject.waitForElementAndClick(
-            By.xpath("//*[@text='" + name_of_folder + "']"),
-            "Cannot find created '" + name_of_folder + "' folder in 'My lists'");
-    mainPageObject.waitForElementPresent(
-            By.xpath("//*[@text='Java (programming language)']"),
-            "Cannot find article 'Java (programming language)' in '" + name_of_folder + "' folder");
-    mainPageObject.swipeElementToLeft(
-            By.xpath("//*[@text='Java (programming language)']"),
-            "Cannot find article saved  article 'Java (programming language)'");
-    mainPageObject.waitForElementNotPresent(
-            By.xpath("//*[@text='Java (programming language)']"),
-            "Cannot delete saved article 'Java (programming language)'");
+    searchPageObject.initSearchInput();
+    searchPageObject.typeSearchLine("Java");
+    searchPageObject.clickByArticleWithSubstring("Object-oriented programming language");
+    articlePageObject.waitForTitleElement();
+    String article_title = articlePageObject.getArticleTitle();
+    articlePageObject.addArticleToMyList(name_of_folder);
+    articlePageObject.closeArticle();
+    navigationUI.goToMyListPage();
+    myListsPageObject.openFolderByName(name_of_folder);
+    myListsPageObject.swipeByArticleToDisappearByTitle(article_title, name_of_folder);
   }
 
   @Test
@@ -112,7 +100,7 @@ public class FirstTest extends CoreTestCase {
     choosingMoreOptionsAddToReadingListCommand();
     creatingFirstReadingList(name_of_myList);
     closeAnArticle(location_Close_button);
-    goToMyListPage();
+    navigationUI.goToMyListPage();
     clickToReadingList(name_of_myList);
     List<String> titles_after_saving_First_article = checkNumbersOfArticles(name_of_myList, counter_article);
     checkTitleFirstSavedArticle(articleTitles, titles_after_saving_First_article);
@@ -121,7 +109,7 @@ public class FirstTest extends CoreTestCase {
     openAnArticle(search_keyword, articleTitles.get(1));
     addArticleToReadingListUsingActionBar(name_of_myList);
     closeAnArticle(location_Close_button);
-    goToMyListPage();
+    navigationUI.goToMyListPage();
     clickToReadingList(name_of_myList);
     checkTitleSecondSavedArticle(name_of_myList, articleTitles);
     checkNumbersOfArticles(name_of_myList, titles_after_saving_First_article.size());
@@ -258,12 +246,6 @@ public class FirstTest extends CoreTestCase {
             "Cannot find " + name_of_myList + " list in the Reading Lists.");
   }
 
-  private void goToMyListPage() {
-    mainPageObject.waitForElementAndClick(
-            By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"),
-            "Cannot find navigation button 'My lists' to open 'My lists' folder");
-  }
-
   private void closeAnArticle(Point location) {
     if (mainPageObject.assertionElementPresent(
             By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"))) {
@@ -291,23 +273,6 @@ public class FirstTest extends CoreTestCase {
     mainPageObject.waitForElementAndClick(
             By.xpath("//*[@text='Add to reading list']"),
             "Cannot find options to add article to reading list ");
-  }
-
-  private void openAnArticle() {
-    mainPageObject.waitForElementAndClick(
-            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
-            "Cannot find Search Wikipedia input");
-    mainPageObject.waitForElementAndSendKeys(
-            By.xpath("//*[contains(@text,'Search…')]"),
-            "Java",
-            "Cannot find search input");
-    mainPageObject.waitForElementAndClick(
-            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
-            "Cannot click to the article 'Object-oriented programming language'");
-    mainPageObject.waitForElementPresent(
-            By.id("org.wikipedia:id/view_page_title_text"),
-            "Cannot find title for article",
-            15);
   }
 
   private List<String> getArticlesTitles(String searchKeyword) {
