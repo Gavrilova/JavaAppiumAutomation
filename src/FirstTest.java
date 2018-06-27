@@ -1,57 +1,22 @@
 import io.appium.java_client.TouchAction;
-import io.appium.java_client.android.AndroidDriver;
-import org.junit.*;
+import lib.CoreTestCase;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.openqa.selenium.*;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 /**
  * Created by irinagavrilova on 5/17/18.
  */
-public class FirstTest {
-  private AndroidDriver driver;
+public class FirstTest extends CoreTestCase{
 
-  @Before
-  public void setUp() throws Exception {
-    DesiredCapabilities capabilities = new DesiredCapabilities();
-    capabilities.setCapability("platformName", "Android");
-    capabilities.setCapability("deviceName", "AndroidTestDevice");
-    capabilities.setCapability("platformVersion", "8.0");
-    capabilities.setCapability("automationName", "Appium");
-    capabilities.setCapability("appPackage", "org.wikipedia");
-    capabilities.setCapability("appActivity", ".main.MainActivity");
-    capabilities.setCapability("app", "/Users/irinagavrilova/Desktop/Devel/trainings/JavaAppiumAutomation/apks/org.wikipedia.apk");
-
-    driver = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
-    setRotation(ScreenOrientation.PORTRAIT);
-  }
-
-  private void setRotation(ScreenOrientation rotation) {
-    try {
-    driver.rotate(rotation);}
-    catch (Exception exc) {
-      exc.printStackTrace();
-    }
-    assertEquals(
-            "Cannot rotate screen to default "+rotation+" mode.",
-            driver.getOrientation(),
-            rotation);
-  }
-
-  @After
-  public void tearDown() {
-    driver.quit();
-    driver = null;
-  }
 
   @Ignore
   @Test
