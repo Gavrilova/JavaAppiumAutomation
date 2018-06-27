@@ -33,33 +33,11 @@ public class FirstTest extends CoreTestCase {
 
   @Test
   public void testCancelSearch() {
-
-    mainPageObject.waitForElementAndClick(
-            By.id("org.wikipedia:id/search_container"),
-            "Cannot find 'Search Wikipedia' input",
-            5);
-
-    mainPageObject.waitForElementAndSendKeys(
-            By.xpath("/*//*[contains(@text,'Search…')]"),
-            "Java",
-            "Cannot find search input",
-            5);
-    mainPageObject.waitForElementAndClear(
-            By.id("org.wikipedia:id/search_src_text"),
-            "Cannot find search field",
-            5
-    );
-
-    mainPageObject.waitForElementAndClick(
-            By.id("org.wikipedia:id/search_close_btn"),
-            "Cannot find 'X to cancel search",
-            5
-    );
-    mainPageObject.waitForElementNotPresent(
-            By.id("org.wikipedia:id/search_close_btn"),
-            "'X' is still present on the page",
-            5
-    );
+    searchPageObject.initSearchInput();
+    searchPageObject.typeSearchLine("Java");
+    searchPageObject.clearSearchTextField();
+    searchPageObject.clickCancelSearch();
+    searchPageObject.waitForCancelButtonToDisappear();
   }
 
 
