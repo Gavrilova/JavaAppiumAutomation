@@ -357,20 +357,9 @@ public class FirstTest extends CoreTestCase {
   @Test
   public void testAmountOfNotEmptySearch() {
     String search_keyword = "Linkin Park discography";
-    mainPageObject.waitForElementAndClick(
-            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
-            "Cannot find Search Wikipedia input");
-    mainPageObject.waitForElementAndSendKeys(
-            By.xpath("//*[contains(@text,'Search…')]"),
-            search_keyword,
-            "Cannot find search input");
-    String search_result_locator =
-            "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']";
-    mainPageObject.waitForElementPresent(
-            By.xpath(search_result_locator),
-            "Cannot find anything by request '" + search_keyword + "'",
-            15);
-    int amount_of_searching_results = mainPageObject.getAmountOfElements(By.xpath(search_result_locator));
+    searchPageObject.initSearchInput();
+    searchPageObject.typeSearchLine(search_keyword);
+    int amount_of_searching_results = searchPageObject.getAmountOfFoundArticles(search_keyword);
     assertTrue(
             "We found too few results!",
             amount_of_searching_results > 0);
@@ -380,23 +369,10 @@ public class FirstTest extends CoreTestCase {
   @Test
   public void testAmountOfEmptySearch() {
     String search_keyword = "m23052";
-    String search_result_locator =
-            "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']";
-    String empty_result_label = "//*[@text='No results found']";
-    mainPageObject.waitForElementAndClick(
-            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
-            "Cannot find Search Wikipedia input");
-    mainPageObject.waitForElementAndSendKeys(
-            By.xpath("//*[contains(@text,'Search…')]"),
-            search_keyword,
-            "Cannot find search input");
-    mainPageObject.waitForElementPresent(
-            By.xpath(empty_result_label),
-            "Cannot find empty result label by request '" + search_keyword + "'",
-            15);
-    mainPageObject.isElementNotPresent(
-            By.xpath(search_result_locator),
-            "We've found some results by request '" + search_keyword + "'");
+    searchPageObject.initSearchInput();
+    searchPageObject.typeSearchLine(search_keyword);
+    searchPageObject.waitForEmptyResultsLabel(search_keyword);
+    searchPageObject.assertThereIsNoResultSearch(search_keyword);
   }
 
   @Test

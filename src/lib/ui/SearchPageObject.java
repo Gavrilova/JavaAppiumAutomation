@@ -13,7 +13,9 @@ public class SearchPageObject extends MainPageObject {
           SEARCH_INPUT = "//*[contains(@text,'Search…')]",
           SEARCH_RESULT_BY_SUBSTRING_TPL = "//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='{SUBSTRING}']",
           SEARCH_CANCEL_BUTTON = "org.wikipedia:id/search_close_btn",
-          SEARCH_SRC_TEXT = "org.wikipedia:id/search_src_text";
+          SEARCH_SRC_TEXT = "org.wikipedia:id/search_src_text",
+          SEARCH_RESULT_ELEMENT = "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']",
+          SEARCH_EMPTY_RESULT_ELEMENT = "//*[@text='No results found']";
 
   public SearchPageObject(AppiumDriver driver) {
     super(driver);
@@ -58,6 +60,7 @@ public class SearchPageObject extends MainPageObject {
             By.id(SEARCH_SRC_TEXT),
             "Cannot find search test field");
   }
+
   public void clickCancelSearch() {
     this.waitForElementAndClick(
             By.id(SEARCH_CANCEL_BUTTON),
@@ -70,6 +73,7 @@ public class SearchPageObject extends MainPageObject {
             By.xpath(search_result_xpath),
             "Cannot find search result with substring " + substring);
   }
+
   public void clickByArticleWithSubstring(String substring) {
     String search_result_xpath = getResultSearchElement(substring);
     this.waitForElementAndClick(
@@ -77,4 +81,27 @@ public class SearchPageObject extends MainPageObject {
             "Cannot find  and click search result with substring " + substring,
             10);
   }
+
+  public int getAmountOfFoundArticles(String search_keyword) {
+    this.waitForElementPresent(
+            By.xpath(SEARCH_RESULT_ELEMENT),
+            "Cannot find anything by request '" + search_keyword + "'",
+            15);
+    return this.getAmountOfElements(By.xpath(SEARCH_RESULT_ELEMENT));
+  }
+
+  public void waitForEmptyResultsLabel(String search_keyword) {
+    this.waitForElementPresent(
+            By.xpath(SEARCH_EMPTY_RESULT_ELEMENT),
+            "Cannot find empty result element by request '" + search_keyword + "'",
+            15);
+  }
+
+  public void assertThereIsNoResultSearch(String search_keyword) {
+    this.isElementNotPresent(
+            By.xpath(SEARCH_RESULT_ELEMENT),
+            "We supposed not to find any results, иге we've found some results by request '" + search_keyword + "'");
+  }
+
+
 }
