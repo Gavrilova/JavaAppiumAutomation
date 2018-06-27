@@ -32,6 +32,19 @@ public class FirstTest {
     capabilities.setCapability("app", "/Users/irinagavrilova/Desktop/Devel/trainings/JavaAppiumAutomation/apks/org.wikipedia.apk");
 
     driver = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
+    setRotation(ScreenOrientation.PORTRAIT);
+  }
+
+  private void setRotation(ScreenOrientation rotation) {
+    try {
+    driver.rotate(rotation);}
+    catch (Exception exc) {
+      exc.printStackTrace();
+    }
+    assertEquals(
+            "Cannot rotate screen to default "+rotation+" mode.",
+            driver.getOrientation(),
+            rotation);
   }
 
   @After
