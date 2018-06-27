@@ -207,6 +207,61 @@ public class FirstTest {
     deleteFirstArticle(articleTitles);
   }
 
+
+  @Test
+  /* открывает статью и убеждается, что у нее есть элемент title. Важно: тест не должен дожидаться появления title,
+  проверка должна производиться сразу. Если title не найден - тест падает с ошибкой. Метод можно назвать
+  assertElementPresent.
+  */
+  public void testTitleAssertion() {
+    String searchKeyword = "Zello";
+    waitForElementAndClick(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot find Search Wikipedia input");
+    waitForElementAndSendKeys(
+            By.xpath("//*[contains(@text,'Search…')]"),
+            searchKeyword,
+            "Cannot find search input");
+    List<String> search_results =
+            waitForElementsAndGetAttributes(
+                    By.id("org.wikipedia:id/page_list_item_title"),
+                    "text",
+                    "Cannot find any search results for '" + searchKeyword + "'.",
+                    15);
+    assertTrue(
+            "Unfortunately, we didn't get enough search results by: '" + searchKeyword + "'",
+            (search_results.size() > 0));
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='" + search_results.get(0) + "']"),
+            "Cannot click to the article '" + search_results.get(0) + "'");
+    waitForElementNotPresent(
+            By.id("org.wikipedia:id/single_fragment_toolbar_wordmark"),
+            "Cannot open article page. Still on Explore page with Wikipedia logo.");
+    waitForElementNotPresent(
+            By.xpath("//*[contains(@text,'Search Wikipedia')]"),
+            "Cannot open article page. Still on Search page.");
+    assertElementPresent(
+            By.id("org.wikipedia:id/view_page_title_text"),
+            "Cannot find title.");
+  }
+
+  private void isElementPresent(By by, String error_message) {
+    int amount_of_elements = getAmountOfElements(by);
+    if (amount_of_elements == 0) {
+      String default_message =
+              "An element '" + by.toString() + "' supposed to be present.";
+      throw new AssertionError(error_message + default_message);
+    }
+  }
+
+  private void assertElementPresent(By locator, String error_message) {
+    try {
+      driver.findElement(locator);
+    } catch (NoSuchElementException exc) {
+      throw new NoSuchElementException(error_message + " Element is not present. Cannot find element by this locator: " + locator);
+    }
+  }
+
   private Point getLocationXbutton() {
     return waitForElementPresent(
             By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
@@ -289,7 +344,7 @@ public class FirstTest {
   }
 
   private void closeAnArticle(Point location) {
-    if (assertElementPresent(
+    if (assertionElementPresent(
             By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"))) {
       waitForElementAndClick(
               By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
@@ -358,8 +413,8 @@ public class FirstTest {
   }
 
   private void openAnArticle(String searchKeyword, String articleName) {
-    if (assertElementPresent(By.id("org.wikipedia:id/single_fragment_toolbar_wordmark"))
-            && assertElementPresent(By.id("org.wikipedia:id/search_container"))) {
+    if (assertionElementPresent(By.id("org.wikipedia:id/single_fragment_toolbar_wordmark"))
+            && assertionElementPresent(By.id("org.wikipedia:id/search_container"))) {
       waitForElementAndClick(
               By.xpath("//*[contains(@text,'Search Wikipedia')]"),
               "Cannot find Search Wikipedia input");
@@ -796,20 +851,7 @@ public class FirstTest {
     }
   }
 
-  private void isElementPresent(By by, String error_message) {
-    int amount_of_elements = getAmountOfElements(by);
-    if (amount_of_elements == 0) {
-      String default_message =
-              "An element '" + by.toString() + "' supposed to be present.";
-      throw new AssertionError(default_message + " " + error_message);
-    }
-  }
-
-  private boolean assertElementsPresent(By locator){
-    return driver.findElements(locator).size() > 0;
-  }
-
-  private boolean assertElementPresent(By locator) {
+  private boolean assertionElementPresent(By locator) {
     String error_message = "Element is not present. Cannot find element by this locator: " + locator;
     try {
       driver.findElement(locator);
@@ -819,6 +861,10 @@ public class FirstTest {
       System.out.println(error_message);
       return false;
     }
+  }
+
+  private boolean assertElementsPresent(By locator) {
+    return driver.findElements(locator).size() > 0;
   }
 
   private String waitForElementAndGetAttribute(By by, String attribute, String error_message, long timeoutInSeconds) {
